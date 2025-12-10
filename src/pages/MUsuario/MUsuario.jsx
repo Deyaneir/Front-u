@@ -42,7 +42,7 @@ const MUsuario = () => {
         if (!token) return;
 
         const response = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/perfil`, 
+          `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/perfil`, 
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -94,7 +94,7 @@ const MUsuario = () => {
       setAvatar(newAvatarUrl);
       
       await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}/actualizar`, 
+        `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/actualizar`, 
         { avatar: newAvatarUrl },
         { headers: { Authorization: `Bearer ${token}` } }
       );
