@@ -25,9 +25,13 @@ const ChangePasswordForm = () => {
         const token = storeAuth.getState().token;
         if (!token) return;
 
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}api/usuarios/perfil`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await axios.get(
+  `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/perfil`,
+  {
+    headers: { Authorization: `Bearer ${token}` }
+  }
+);
+
 
         setUsername(res.data?.nombre || "Usuario");
         setAvatarUrl(res.data?.avatar || "https://upload.wikimedia.org/wikipedia/commons/2/2c/Default_pfp.svg");
@@ -55,10 +59,11 @@ const ChangePasswordForm = () => {
       }
 
       const res = await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}api/usuarios/actualizar/password`,
-        { oldPassword, newPassword },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+  `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/actualizar/password`,
+  { oldPassword, newPassword },
+  { headers: { Authorization: `Bearer ${token}` } }
+);
+
 
       toast.success(res.data.msg || "Contraseña actualizada correctamente");
 
