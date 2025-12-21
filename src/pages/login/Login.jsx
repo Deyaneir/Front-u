@@ -1,20 +1,59 @@
 import { useForm } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { IoArrowBack } from "react-icons/io5";
 import storeAuth from "../../context/storeAuth";
+import { useState } from "react";
 
 import "react-toastify/dist/ReactToastify.css";
 import "./Login.css";
 
+// --- SVG OJITOS KAWAII ---
+const KawaiiEyeIcon = () => (
+    <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        width="22" 
+        height="22" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2.5" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+        className="icon-eye-kawaii"
+    >
+        <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" />
+        <circle cx="12" cy="12" r="3.5" fill="currentColor"/>
+        <circle cx="13.5" cy="10.5" r="0.5" fill="white"/>
+    </svg>
+);
+
+const KawaiiEyeOffIcon = () => (
+    <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        width="22" 
+        height="22" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2.5" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+        className="icon-eye-off-kawaii"
+    >
+        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.49M2 2l20 20" />
+        <path d="M21.94 12c-3.1-4.81-6.57-7.25-9.44-8a18.45 18.45 0 0 0-3.04.57" />
+    </svg>
+);
+
 const Login = () => {
     const navigate = useNavigate();
     const { register, handleSubmit, formState: { errors } } = useForm();
-
     const setToken = storeAuth((state) => state.setToken);
     const setRol = storeAuth((state) => state.setRol);
+
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = async (data) => {
         const loadingToast = toast.loading("Iniciando sesión...");
@@ -25,18 +64,14 @@ const Login = () => {
                 {
                     correoInstitucional: data.email,
                     password: data.password,
-                    rol: data.rol   // 🔥 AHORA SÍ ENVIAMOS EL ROL
+                    rol: data.rol
                 }
             );
 
-            // El backend devuelve el rol verificado
             const { token, nombre, correoInstitucional, rol } = res.data;
 
-            // Guardar en Zustand
             setToken(token);
             setRol(rol);
-
-            // Guardar en localStorage
             localStorage.setItem("token", token);
             localStorage.setItem("rol", rol);
             localStorage.setItem("nombre", nombre);
@@ -58,7 +93,6 @@ const Login = () => {
                 isLoading: false,
                 autoClose: 4000
             });
-            console.error(error);
         }
     };
 
@@ -76,48 +110,49 @@ const Login = () => {
                     </p>
 
                     <form className="login-form" onSubmit={handleSubmit(handleLogin)}>
-                        
                         <div className="input-group">
                             <input
                                 type="email"
                                 placeholder="Email universitario"
-                                {...register("email", {
-                                    required: "El email es obligatorio"
-                                })}
+                                {...register("email", { required: "El email es obligatorio" })}
                             />
                             {errors.email && <span className="error-text">{errors.email.message}</span>}
                         </div>
 
-                        <div className="input-group">
+                        {/* PASSWORD KAWAII */}
+                        <div className="input-group password-group" style={{ position: "relative" }}>
                             <input
-                                type="password"
+                                type={showPassword ? "text" : "password"}
                                 placeholder="Contraseña"
-                                {...register("password", {
-                                    required: "La contraseña es obligatoria"
-                                })}
+                                {...register("password", { required: "La contraseña es obligatoria" })}
                             />
+                            <span
+                                className="eye-icon"
+                                onClick={() => setShowPassword(!showPassword)}
+                                style={{
+                                    position: "absolute",
+                                    right: "10px",
+                                    top: "50%",
+                                    transform: "translateY(-50%)",
+                                    cursor: "pointer"
+                                }}
+                            >
+                                {showPassword ? <KawaiiEyeIcon /> : <KawaiiEyeOffIcon />}
+                            </span>
                             {errors.password && <span className="error-text">{errors.password.message}</span>}
                         </div>
 
-                        {/* 🔥 El usuario debe seleccionar el rol */}
                         <div className="input-group">
-                            <select
-                                {...register("rol", { required: "Selecciona un rol" })}
-                                className="select-rol"
-                            >
+                            <select {...register("rol", { required: "Selecciona un rol" })} className="select-rol">
                                 <option value="">Seleccionar rol...</option>
                                 <option value="administracion">Administración</option>
                                 <option value="estudiante">Estudiante</option>
                                 <option value="moderador">Moderador</option>
                             </select>
-                            {errors.rol && (
-                                <span className="error-text">{errors.rol.message}</span>
-                            )}
+                            {errors.rol && <span className="error-text">{errors.rol.message}</span>}
                         </div>
 
-                        <button type="submit" className="login-btn">
-                            Iniciar Sesión
-                        </button>
+                        <button type="submit" className="login-btn">Iniciar Sesión</button>
 
                         <Link to="/Forgot-password" className="Forgot-link">
                             ¿Olvidaste tu contraseña?
