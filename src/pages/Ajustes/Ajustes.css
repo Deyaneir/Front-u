@@ -1,4 +1,15 @@
-/* Fondo general */
+/* ===================================================== */
+/* CONTENEDOR GENERAL (LIMITA EL ANCHO DE LAS CARDS) */
+/* ===================================================== */
+.ajustes-container {
+  max-width: 700px;     /* ✅ controla el ancho real */
+  margin: 0 auto;       /* ✅ centra */
+  padding: 0 10px;      /* ✅ margen en móvil */
+}
+
+/* ===================================================== */
+/* FONDO GENERAL */
+/* ===================================================== */
 .ajustes-section {
   font-family: 'Poppins', sans-serif;
   padding: 90px 20px 30px 20px;
@@ -6,7 +17,9 @@
   min-height: 100vh;
 }
 
-/* Título principal */
+/* ===================================================== */
+/* TÍTULO PRINCIPAL */
+/* ===================================================== */
 .ajustes-title {
   font-size: 2rem;
   color: #4a4e69;
@@ -14,11 +27,13 @@
   text-align: center;
 }
 
-/* Cards */
+/* ===================================================== */
+/* CARDS (CONTENEDORES BLANCOS) */
+/* ===================================================== */
 .ajustes-card {
   background: #ffffff;
   border-radius: 15px;
-  padding: 25px;
+  padding: 25px; /* ✅ padding interno correcto */
   box-shadow: 0 6px 20px rgba(0,0,0,0.08);
   margin-bottom: 25px;
   transition: background 0.2s ease, box-shadow 0.2s ease;
@@ -32,7 +47,9 @@
   padding-left: 10px;
 }
 
-/* Filas dentro de las cards */
+/* ===================================================== */
+/* FILAS DENTRO DE LAS CARDS */
+/* ===================================================== */
 .ajustes-row {
   display: flex;
   justify-content: space-between;
@@ -47,7 +64,9 @@
   color: #555;
 }
 
-/* Botones de acción */
+/* ===================================================== */
+/* BOTONES */
+/* ===================================================== */
 .btn-accion {
   background: #6a0dad;
   color: white;
@@ -59,7 +78,11 @@
   transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-/* Botón peligro */
+.btn-accion:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-2px);
+}
+
 .btn-peligro {
   background: #d9534f;
 }
@@ -68,12 +91,16 @@
   background: #b52b27;
 }
 
-/* Inputs ocultos (para avatar) */
+/* ===================================================== */
+/* INPUT FILE OCULTO */
+/* ===================================================== */
 .input-file-hidden {
   display: none;
 }
 
-/* Selects */
+/* ===================================================== */
+/* SELECT */
+/* ===================================================== */
 .ajustes-select {
   padding: 6px 10px;
   border-radius: 8px;
@@ -86,7 +113,9 @@
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
 }
 
-/* Switch de notificaciones */
+/* ===================================================== */
+/* SWITCH */
+/* ===================================================== */
 .switch {
   position: relative;
   display: inline-block;
@@ -103,8 +132,10 @@
   cursor: pointer;
   background-color: #ccc;
   border-radius: 25px;
-  top: 0; left: 0;
-  right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   transition: 0.3s;
 }
 
@@ -128,43 +159,29 @@ input:checked + .slider:before {
   transform: translateX(24px);
 }
 
-/* Hover solo en filas principales */
+/* ===================================================== */
+/* HOVERS */
+/* ===================================================== */
 .hover-card {
   transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   cursor: pointer;
 }
 
 .hover-card:hover {
-  background: #f0f0ff; /* ligero cambio de color */
+  background: #f0f0ff;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   transform: translateY(-2px);
 }
 
-/* Hover en botones de acción principales */
-.btn-actualizar-cuenta,
-.btn-actualizar-pass,
-.btn-cerrar-sesion {
-  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-  border: 1px solid #ccc; /* sutil borde gris */
-}
-
-.btn-actualizar-cuenta:hover,
-.btn-actualizar-pass:hover,
-.btn-cerrar-sesion:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  transform: translateY(-2px);
-  background-color: #f0f0ff; /* efecto iluminado sutil */
-}
-/* Hover para filas de Cambiar contraseña y Cerrar sesión */
 .hover-highlight {
   transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   cursor: pointer;
   border-radius: 8px;
-  padding: 10px; /* opcional para que se vea el recuadro completo */
+  padding: 10px;
 }
 
 .hover-highlight:hover {
-  background-color: #f0f0ff; /* color iluminado */
+  background-color: #f0f0ff;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   transform: translateY(-2px);
 }
