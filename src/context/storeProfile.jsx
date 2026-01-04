@@ -1,9 +1,11 @@
 import { create } from "zustand";
 import axios from "axios";
+import storeAuth from "./storeAuth";
 
-// Función para obtener headers con token desde localStorage
+// Función correcta para headers con token
 const getAuthHeaders = () => {
-  const token = localStorage.getItem("token"); // tu login guarda el token aquí
+  const token = storeAuth.getState().token;
+
   return {
     headers: {
       "Content-Type": "application/json",
@@ -13,25 +15,40 @@ const getAuthHeaders = () => {
 };
 
 const storeProfile = create((set) => ({
-  user: null, // estado para guardar el usuario
-  clearUser: () => set({ user: null }), // limpiar usuario
+  user: null,
+
+  clearUser: () => set({ user: null }),
+
+  // 🔐 PERFIL (GET protegido)
   profile: async () => {
     try {
-      const url = `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/perfil`; // ruta protegida
+      const url = `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/perfil`;
       const respuesta = await axios.get(url, getAuthHeaders());
-      set({ user: respuesta.data }); // guardar datos en estado
+
+      set({ user: respuesta.data });
+      return respuesta.data;
     } catch (error) {
-      console.error("Error al obtener perfil:", error.response?.data || error);
+      console.error(
+        "Error al obtener perfil:",
+        error.response?.data || error
+      );
+      throw error;
     }
   },
+
+  // ✏️ ACTUALIZAR PERFIL (PUT protegido)
   actualizarProfile: async (data) => {
     try {
       const url = `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/actualizar`;
       const respuesta = await axios.put(url, data, getAuthHeaders());
-      set({ user: respuesta.data }); // actualizar estado con nuevos datos
+
+      set({ user: respuesta.data });
       return respuesta.data;
     } catch (error) {
-      console.error("Error al actualizar perfil:", error.response?.data || error);
+      console.error(
+        "Error al actualizar perfil:",
+        error.response?.data || error
+      );
       throw error;
     }
   },
