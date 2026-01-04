@@ -16,84 +16,188 @@ const ResetPassword = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  // 🔐 Fuerza de contraseña
+  const getStrength = () => {
+    if (!password) return 0;
+    if (password.length < 6) return 30;
+    if (password.length < 10) return 60;
+    return 100;
+  };
+
   const handleReset = async (data) => {
-    const loadingToast = toast.loading("Restableciendo contraseña...");
+    const loading = toast.loading("Restableciendo contraseña...");
     try {
-      // ✅ CORRECCIÓN CLAVE: Enviar 'confirmpassword' para que el backend pueda validarlo.
       const res = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/reset-password/${token}`,
-        { 
-          password: data.password, // Enviamos el campo principal
-          confirmpassword: data.confirmPassword // Enviamos la confirmación con el nombre que espera el backend
-        }
+        { password: data.password }
       );
-      toast.update(loadingToast, { render: res.data.msg, type: "success", isLoading: false, autoClose: 4000 });
+      toast.update(loading, {
+        render: res.data.msg,
+        type: "success",
+        isLoading: false,
+        autoClose: 3000
+      });
       setTimeout(() => navigate("/login"), 2000);
     } catch (error) {
-      toast.update(loadingToast, { render: error.response?.data?.msg || "Error 😞", type: "error", isLoading: false, autoClose: 4000 });
+      toast.update(loading, {
+        render: error.response?.data?.msg || "Error 😞",
+        type: "error",
+        isLoading: false,
+        autoClose: 4000
+      });
     }
   };
 
   const styles = {
-    container: { display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh", background: "linear-gradient(135deg,#ffb07c,#9f6bff)", padding: "20px", position: "relative" },
-    card: { background: "white", width: "400px", padding: "40px", borderRadius: "20px", boxShadow: "0 4px 20px rgba(0,0,0,0.1)", textAlign: "center", position: "relative" },
-    title: { fontSize: "28px", fontWeight: "bold" },
-    subtitle: { marginTop: "8px", color: "#555", fontSize: "15px" },
-    backBtn: { position: "absolute", top: "25px", left: "25px", color: "black" },
-    inputContainer: { position: "relative", width: "100%", marginTop: "20px" },
-    input: { 
-      width: "100%", 
-      padding: "12px 12px 12px 12px", // ojo pegado al borde derecho
-      border: "2px solid #ccc", 
-      borderRadius: "10px", 
-      fontSize: "16px", 
-      backgroundColor: "white", 
-      color: "black" 
+    container: {
+      minHeight: "100vh",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      background: "linear-gradient(135deg,#ffb07c,#9f6bff)",
+      padding: "20px",
+      position: "relative"
     },
-    eyeIcon: { position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", cursor: "pointer", color: "#555" },
-    errorText: { display: "block", fontSize: "13px", color: "red", marginTop: "4px" },
-    button: { width: "100%", padding: "13px", background: "#8a3dff", color: "white", fontSize: "16px", fontWeight: "bold", border: "none", borderRadius: "12px", marginTop: "30px", cursor: "pointer", transition: ".3s" }
+    card: {
+      background: "white",
+      width: "400px",
+      padding: "40px",
+      borderRadius: "20px",
+      boxShadow: "0 4px 20px rgba(0,0,0,0.1)",
+      textAlign: "center",
+      position: "relative"
+    },
+    backBtn: {
+      position: "absolute",
+      top: "25px",
+      left: "25px",
+      color: "black"
+    },
+    title: { fontSize: "28px", fontWeight: "bold", color: "#111" },
+    subtitle: { color: "#555", marginTop: "8px" },
+
+    inputContainer: {
+      position: "relative",
+      width: "100%",
+      marginTop: "20px"
+    },
+    input: {
+      width: "100%",
+      padding: "14px 44px 14px 14px",
+      borderRadius: "12px",
+      border: "2px solid #d1d5db",
+      fontSize: "16px",
+      outline: "none",
+      transition: "0.3s",
+      color: "black"
+    },
+    eye: {
+      position: "absolute",
+      right: "12px",
+      top: "50%",
+      transform: "translateY(-50%)",
+      cursor: "pointer",
+      color: "#555"
+    },
+    error: {
+      color: "red",
+      fontSize: "13px",
+      marginTop: "5px",
+      display: "block"
+    },
+    button: {
+      width: "100%",
+      padding: "14px",
+      marginTop: "30px",
+      background: "#8a3dff",
+      color: "white",
+      border: "none",
+      borderRadius: "12px",
+      fontSize: "16px",
+      fontWeight: "bold",
+      cursor: "pointer"
+    }
   };
 
   return (
     <div style={styles.container}>
-      <Link to="/login" style={styles.backBtn}><IoArrowBack size={30} /></Link>
+      <Link to="/login" style={styles.backBtn}>
+        <IoArrowBack size={30} />
+      </Link>
+
       <div style={styles.card}>
         <h2 style={styles.title}>Restablecer contraseña</h2>
-        <p style={styles.subtitle}>Ingresa tu nueva contraseña y confírmala</p>
+        <p style={styles.subtitle}>Ingresa tu nueva contraseña</p>
+
         <form onSubmit={handleSubmit(handleReset)}>
-          {/* Nueva contraseña */}
+          {/* NUEVA CONTRASEÑA */}
           <div style={styles.inputContainer}>
             <input
-              type={showPassword ? "text" : "password"} // ojo abierto → visible, ojo cerrado → oculto
+              type={showPassword ? "text" : "password"}
               placeholder="Nueva contraseña"
-              style={styles.input}
-              {...register("password", { required: "La contraseña es obligatoria", minLength: { value: 6, message: "Mínimo 6 caracteres" } })}
+              style={{
+                ...styles.input,
+                border: errors.password ? "2px solid red" : styles.input.border
+              }}
+              onFocus={(e) => e.target.style.border = "2px solid #8a3dff"}
+              onBlur={(e) => e.target.style.border = errors.password ? "2px solid red" : "2px solid #d1d5db"}
+              {...register("password", {
+                required: "La contraseña es obligatoria",
+                minLength: { value: 6, message: "Mínimo 6 caracteres" }
+              })}
             />
-            {showPassword ? 
-              <AiOutlineEye style={styles.eyeIcon} size={20} onClick={() => setShowPassword(false)} /> : 
-              <AiOutlineEyeInvisible style={styles.eyeIcon} size={20} onClick={() => setShowPassword(true)} />}
+            {showPassword
+              ? <AiOutlineEye style={styles.eye} onClick={() => setShowPassword(false)} />
+              : <AiOutlineEyeInvisible style={styles.eye} onClick={() => setShowPassword(true)} />
+            }
           </div>
-          {errors.password && <span style={styles.errorText}>{errors.password.message}</span>}
+          {errors.password && <span style={styles.error}>{errors.password.message}</span>}
 
-          {/* Confirmar contraseña */}
+          {/* BARRA DE FUERZA */}
+          <div style={{ marginTop: "10px" }}>
+            <div style={{ height: "6px", background: "#e5e7eb", borderRadius: "10px" }}>
+              <div
+                style={{
+                  width: `${getStrength()}%`,
+                  height: "100%",
+                  borderRadius: "10px",
+                  transition: "0.3s",
+                  background:
+                    getStrength() < 40 ? "red" :
+                    getStrength() < 70 ? "orange" : "green"
+                }}
+              />
+            </div>
+          </div>
+
+          {/* CONFIRMAR */}
           <div style={styles.inputContainer}>
             <input
-              type={showConfirm ? "text" : "password"} // ojo abierto → visible, ojo cerrado → oculto
-              placeholder="Reescribe la contraseña"
-              style={styles.input}
-              {...register("confirmPassword", { required: "Debes confirmar", validate: value => value === password || "No coinciden" })}
+              type={showConfirm ? "text" : "password"}
+              placeholder="Confirmar contraseña"
+              style={{
+                ...styles.input,
+                border: errors.confirmPassword ? "2px solid red" : styles.input.border
+              }}
+              {...register("confirmPassword", {
+                required: "Debes confirmar",
+                validate: value => value === password || "No coinciden"
+              })}
             />
-            {showConfirm ? 
-              <AiOutlineEye style={styles.eyeIcon} size={20} onClick={() => setShowConfirm(false)} /> : 
-              <AiOutlineEyeInvisible style={styles.eyeIcon} size={20} onClick={() => setShowConfirm(true)} />}
+            {showConfirm
+              ? <AiOutlineEye style={styles.eye} onClick={() => setShowConfirm(false)} />
+              : <AiOutlineEyeInvisible style={styles.eye} onClick={() => setShowConfirm(true)} />
+            }
           </div>
-          {errors.confirmPassword && <span style={styles.errorText}>{errors.confirmPassword.message}</span>}
+          {errors.confirmPassword && <span style={styles.error}>{errors.confirmPassword.message}</span>}
 
-          <button type="submit" style={styles.button}>Restablecer contraseña</button>
+          <button type="submit" style={styles.button}>
+            Restablecer contraseña
+          </button>
         </form>
       </div>
-      <ToastContainer position="top-right" autoClose={4000} />
+
+      <ToastContainer position="top-right" />
     </div>
   );
 };
