@@ -17,7 +17,7 @@ const storeProfile = create((set) => ({
   clearUser: () => set({ user: null }), // limpiar usuario
   profile: async () => {
     try {
-      const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/perfil`; // ruta protegida
+      const url = `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/perfil`; // ruta protegida
       const respuesta = await axios.get(url, getAuthHeaders());
       set({ user: respuesta.data }); // guardar datos en estado
     } catch (error) {
@@ -26,7 +26,7 @@ const storeProfile = create((set) => ({
   },
   actualizarProfile: async (data) => {
     try {
-      const url = `${import.meta.env.VITE_BACKEND_URL}/usuarios/actualizar`;
+      const url = `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/actualizar`;
       const respuesta = await axios.put(url, data, getAuthHeaders());
       set({ user: respuesta.data }); // actualizar estado con nuevos datos
       return respuesta.data;
