@@ -14,10 +14,11 @@ const Register = () => {
     const url = `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/register`;
 
     const body = {
-      nombre: dataForm.name,
-      correoInstitucional: dataForm.email,
-      password: dataForm.password,
-    };
+  nombre: dataForm.name,
+  email: dataForm.email, // 👈 institucional
+  password: dataForm.password,
+};
+
 
     try {
       const response = await axios.post(url, body);
