@@ -56,7 +56,8 @@ const Dashboard = () => {
                     `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/frase`
                 );
 
-                const { q: frase, a: autor } = response.data[0];
+                const { q: frase, a: autor } = response.data;
+
 
                 const traduccion = await axios.get(
                     `https://api.mymemory.translated.net/get?q=${encodeURIComponent(frase)}&langpair=en|es`
