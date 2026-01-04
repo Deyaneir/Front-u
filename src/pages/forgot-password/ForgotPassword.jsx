@@ -72,13 +72,15 @@ const ForgotPassword = () => {
             marginTop: "20px"
         },
         input: {
-            width: "100%",
-            padding: "12px",
-            marginTop: "12px",
-            border: "1px solid #ccc",
-            borderRadius: "10px",
-            fontSize: "16px"
-        },
+    width: "100%",
+    height: "44px",               // ⬅️ más pequeño
+    padding: "10px 14px",         // ⬅️ MISMO espacio izq / der
+    border: "1px solid #ccc",
+    borderRadius: "10px",
+    fontSize: "15px",
+    boxSizing: "border-box",      // ⬅️ CLAVE
+    textAlign: "left"
+},
         errorText: {
             display: "block",
             fontSize: "13px",
