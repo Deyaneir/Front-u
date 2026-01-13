@@ -7,7 +7,7 @@ import {
 } from 'react-icons/fa';
 import './Grupos.css';
 
-const API_URL = "http://controversial-jacquette-vibe-u-d09f766e.koyeb.app/api/grupos";
+const API_URL = "https://controversial-jacquette-vibe-u-d09f766e.koyeb.app/api/grupos";
 
 const Grupos = () => {
     const [grupos, setGrupos] = useState([]);
