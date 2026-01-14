@@ -29,7 +29,6 @@ const Grupos = () => {
     const [nuevoGrupo, setNuevoGrupo] = useState({ nombre: "", imagen: "" });
     const [loading, setLoading] = useState(false);
 
-    // ESTADOS PARA EL RECORTADOR (CROPPER)
     const [imageToCrop, setImageToCrop] = useState(null);
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
@@ -40,7 +39,7 @@ const Grupos = () => {
     const [likes, setLikes] = useState({});
     const [guardados, setGuardados] = useState({});
 
-    // ESTADOS DEL USUARIO (Sincronizados con tu MUsuario para que NO salga gris)
+    // ESTADOS DEL USUARIO (Sincronizados con tu MUsuario)
     const [userName, setUserName] = useState("Usuario");
     const [avatar, setAvatar] = useState(null);
     const userEmail = localStorage.getItem("correo");
@@ -50,7 +49,7 @@ const Grupos = () => {
     const bannerInputRef = useRef(null);
     const perfilInputRef = useRef(null);
 
-    // --- CARGAR PERFIL IGUAL QUE EN MUSUARIO PARA QUE ASOME LA FOTO ---
+    // ✅ CORRECCIÓN 1: Carga de perfil idéntica a MUsuario para asegurar la URL de la imagen
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
@@ -69,7 +68,6 @@ const Grupos = () => {
         fetchUserInfo();
     }, []);
 
-    // --- FUNCIONES DEL CROPPER ---
     const onCropComplete = useCallback((_ , pixels) => {
         setCroppedAreaPixels(pixels);
     }, []);
@@ -125,10 +123,10 @@ const Grupos = () => {
     };
 
     const handleEliminarGrupo = async (id) => {
-        if (!window.confirm("¿ESTÁS SEGURO? Esta acción eliminará el grupo permanentemente.")) return;
+        if (!window.confirm("¿ESTÁS SEGURO?")) return;
         try {
             const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            if (res.ok) { alert("Grupo eliminado"); cargarGrupos(); if (grupoActivo?._id === id) setGrupoActivo(null); }
+            if (res.ok) { cargarGrupos(); if (grupoActivo?._id === id) setGrupoActivo(null); }
         } catch (error) { console.error(error); }
     };
 
@@ -223,7 +221,7 @@ const Grupos = () => {
         finally { setLoading(false); }
     };
 
-    // --- RENDERIZADO DEL MURO ---
+    // --- RENDERIZADO DEL MURO ACTIVO ---
     if (grupoActivo) {
         const grupoData = grupos.find(g => g._id === grupoActivo._id) || grupoActivo;
         return (
@@ -254,6 +252,7 @@ const Grupos = () => {
                     <main className="fb-feed-center">
                         <div className="fb-card-white publish-area">
                             <div className="publish-input-row">
+                                {/* ✅ CORRECCIÓN 2: Mostrar avatar actual en el input de publicación */}
                                 {avatar ? (
                                     <img src={avatar} className="mini-avatar-fb" alt="yo" />
                                 ) : (
@@ -282,7 +281,13 @@ const Grupos = () => {
                         {grupoData.posts?.map(post => (
                             <div key={post._id} className="fb-card-white post-container">
                                 <div className="post-top-header">
-                                    {post.autorFoto ? <img src={post.autorFoto} className="mini-avatar-fb" alt="autor" /> : <FaUserCircle size={40} color="#ccc" className="mini-avatar-fb" />}
+                                    {/* ✅ CORRECCIÓN 3: Si el post es del usuario actual, forzar la foto fresca del estado 'avatar' */}
+                                    {post.autor === userName ? (
+                                        avatar ? <img src={avatar} className="mini-avatar-fb" alt="yo" /> : <FaUserCircle size={40} color="#ccc" className="mini-avatar-fb" />
+                                    ) : (
+                                        post.autorFoto ? <img src={post.autorFoto} className="mini-avatar-fb" alt="autor" /> : <FaUserCircle size={40} color="#ccc" className="mini-avatar-fb" />
+                                    )}
+
                                     <div className="post-user-meta">
                                         <span className="author-fb" style={{color: '#000'}}>{post.autor}</span>
                                         <span className="time-fb" style={{color: '#65676b'}}>Ahora · <FaGlobeAmericas /></span>
@@ -374,7 +379,7 @@ const Grupos = () => {
                         <form onSubmit={handleCrearGrupo}>
                             <div className="vibe-modal-content-body">
                                 <div className="vibe-input-wrapper">
-                                    <input type="text" className="vibe-input-field" placeholder="Nombre de la comunidad" required value={nuevoGrupo.nombre} onChange={(e) => setNuevoGrupo({...nuevoGrupo, nombre: e.target.value})} />
+                                    <input type="text" className="vibe-input-field" placeholder="Nombre" required value={nuevoGrupo.nombre} onChange={(e) => setNuevoGrupo({...nuevoGrupo, nombre: e.target.value})} />
                                 </div>
                                 <div className="vibe-upload-box" onClick={() => fileInputRef.current.click()}>
                                     {nuevoGrupo.imagen ? <img src={nuevoGrupo.imagen} className="vibe-img-fit" alt="preview" /> : <div className="vibe-upload-placeholder"><FaCamera /><p style={{color: '#65676b'}}>Subir foto</p></div>}
