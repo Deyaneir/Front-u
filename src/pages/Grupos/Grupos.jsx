@@ -37,7 +37,7 @@ const Grupos = () => {
 
     const [favoritos, setFavoritos] = useState({});
     const [likes, setLikes] = useState({});
-    const [guardados, setGuardados] = useState({}); // Nuevo estado para guardar
+    const [guardados, setGuardados] = useState({}); 
 
     const fileInputRef = useRef(null);
     const postFotoRef = useRef(null);
@@ -46,10 +46,10 @@ const Grupos = () => {
 
     const userEmail = localStorage.getItem("correo");
     const userName = localStorage.getItem("nombre") || "Usuario";
-    // AUMENTO: Obtener la foto de perfil del usuario logueado
+    
+    // AUMENTO: Obtener la foto de perfil del usuario logueado desde LocalStorage
     const userPhoto = localStorage.getItem("fotoPerfil");
 
-    // --- FUNCIONES DEL CROPPER ---
     const onCropComplete = useCallback((_ , pixels) => {
         setCroppedAreaPixels(pixels);
     }, []);
@@ -173,8 +173,6 @@ const Grupos = () => {
         reader.onloadend = () => {
             if (destino === 'grupo') setImageToCrop(reader.result);
             else if (destino === 'post') setFotoPost(reader.result);
-            else if (destino === 'banner-update') console.log("Nueva portada");
-            else if (destino === 'perfil-update') console.log("Nuevo perfil");
         };
         reader.readAsDataURL(file);
     };
@@ -187,10 +185,16 @@ const Grupos = () => {
             const res = await fetch(`${API_URL}/${grupoActivo._id}/post`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                // AUMENTO: Se envía autorFoto para que el post guarde tu imagen
-                body: JSON.stringify({ autor: userName, autorFoto: userPhoto, contenido: nuevoPost, foto: fotoPost })
+                // ENVIAMOS autorFoto capturada del localStorage
+                body: JSON.stringify({ 
+                    autor: userName, 
+                    autorFoto: userPhoto, 
+                    contenido: nuevoPost, 
+                    foto: fotoPost 
+                })
             });
             const postGuardado = await res.json();
+            // Actualizamos el estado local para ver el post al instante
             setGrupos(prev => prev.map(g => g._id === grupoActivo._id ? { ...g, posts: [postGuardado, ...g.posts] } : g));
             setNuevoPost(""); 
             setFotoPost(null);
@@ -225,7 +229,6 @@ const Grupos = () => {
         const grupoData = grupos.find(g => g._id === grupoActivo._id) || grupoActivo;
         return (
             <div className="fb-layout">
-                {/* Cabecera Estilo Perfil */}
                 <div className="fb-header-container">
                     <div className="fb-cover-photo" style={{ backgroundImage: `url(${grupoData.imagen})` }}>
                         <button className="fb-back-btn" onClick={salirDeGrupo}><FaArrowLeft /></button>
@@ -241,7 +244,6 @@ const Grupos = () => {
                                 <input type="file" ref={perfilInputRef} style={{display:'none'}} accept="image/*" onChange={(e) => handleImagePreview(e, 'perfil-update')} />
                             </div>
                             <div className="fb-name-stats">
-                                {/* AUMENTO: color negro */}
                                 <h1 style={{color: '#000'}}>{grupoData.nombre}</h1>
                                 <p style={{color: '#333'}}><FaGlobeAmericas /> Grupo Público · <b>{grupoData.miembrosArray?.length || 1} miembros</b></p>
                             </div>
@@ -255,11 +257,11 @@ const Grupos = () => {
 
                 <div className="fb-body-grid single-column">
                     <main className="fb-feed-center">
+                        {/* AREA DE PUBLICAR */}
                         <div className="fb-card-white publish-area">
                             <div className="publish-input-row">
-                                {/* AUMENTO: Foto real del usuario en lugar de placeholder */}
                                 {userPhoto ? (
-                                    <img src={userPhoto} className="mini-avatar-fb" alt="u" />
+                                    <img src={userPhoto} className="mini-avatar-fb" alt="tu-perfil" />
                                 ) : (
                                     <FaUserCircle size={40} color="#ccc" className="mini-avatar-fb" />
                                 )}
@@ -283,17 +285,17 @@ const Grupos = () => {
                             </div>
                         </div>
 
+                        {/* LISTADO DE POSTS */}
                         {grupoData.posts?.map(post => (
                             <div key={post._id} className="fb-card-white post-container">
                                 <div className="post-top-header">
-                                    {/* AUMENTO: Foto del autor del post (coincidencia) */}
-                                    {post.autorFoto || userPhoto ? (
-                                        <img src={post.autorFoto || userPhoto} className="mini-avatar-fb" alt="u" />
+                                    {/* Muestra la foto guardada en el post, si no existe usa el placeholder */}
+                                    {post.autorFoto ? (
+                                        <img src={post.autorFoto} className="mini-avatar-fb" alt="autor" />
                                     ) : (
                                         <FaUserCircle size={40} color="#ccc" className="mini-avatar-fb" />
                                     )}
                                     <div className="post-user-meta">
-                                        {/* AUMENTO: color negro */}
                                         <span className="author-fb" style={{color: '#000'}}>{post.autor}</span>
                                         <span className="time-fb" style={{color: '#65676b'}}>Hace un momento · <FaGlobeAmericas /></span>
                                     </div>
@@ -331,7 +333,7 @@ const Grupos = () => {
         );
     }
 
-    // --- VISTA LISTA DE GRUPOS ---
+    // --- VISTA LISTA DE GRUPOS (PÁGINA PRINCIPAL) ---
     return (
         <section className="grupos-page">
             <div className="grupos-header-top">
