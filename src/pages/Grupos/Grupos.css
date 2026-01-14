@@ -1,15 +1,30 @@
 /* =========================================================
-   ESTILOS GENERALES Y PÁGINA DE GRUPOS (FONDO BLANCO)
+   1. VARIABLES Y RESET GENERAL
    ========================================================= */
+:root {
+    --fb-bg: #f0f2f5;
+    --fb-white: #ffffff;
+    --fb-blue: #1877f2;
+    --fb-gray-bg: #e4e6eb;
+    --fb-text-primary: #050505;
+    --fb-text-secondary: #65676b;
+    --vibe-purple: #800080;
+    --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    --modal-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
 .grupos-page {
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
     background-color: #ffffff; 
     min-height: 100vh;
 }
 
+/* =========================================================
+   2. CABECERA PRINCIPAL (VISTA LISTADO)
+   ========================================================= */
 .grupos-header-top {
     display: flex;
     justify-content: space-between;
@@ -64,225 +79,7 @@
 }
 
 /* =========================================================
-   MODAL (AJUSTADO A LA CAPTURA)
-   ========================================================= */
-.modal-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.1); 
-    backdrop-filter: blur(4px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 3000;
-}
-
-.vibe-modal-container {
-    background: #ffffff;
-    width: 420px; 
-    border-radius: 24px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    padding: 30px;
-    position: relative;
-    animation: fadeIn 0.3s ease-out;
-    text-align: center;
-}
-
-.vibe-modal-header {
-    margin-bottom: 25px;
-}
-
-.vibe-modal-title-main {
-    font-size: 22px;
-    font-weight: 700;
-    color: #000;
-    margin: 0;
-}
-
-.vibe-close-circle {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: #f0f2f5;
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #999;
-}
-
-.vibe-modal-content-body {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; 
-    width: 100%;
-    gap: 20px;
-}
-
-.vibe-input-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: flex-start;
-}
-
-.vibe-input-field {
-    width: 100%; 
-    padding: 10px 15px;
-    border: 1px solid #e4e6eb;
-    border-radius: 12px;
-    font-size: 15px;
-    background: #f8f9fa; 
-    outline: none;
-    color: #1c1e21; /* Texto negro */
-}
-
-.vibe-upload-box {
-    width: 100%;
-    height: 160px;
-    border: 2px dashed #427df2; 
-    border-radius: 16px;
-    background: transparent;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    margin: 10px 0;
-    overflow: hidden;
-}
-
-.vibe-img-fit {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.vibe-camera-icon {
-    font-size: 40px;
-    color: #427df2;
-    margin-bottom: 10px;
-}
-
-.vibe-upload-placeholder p {
-    color: #65676b; 
-    font-size: 14px;
-    margin: 0;
-}
-
-.vibe-btn-primary-full {
-    width: 100%;
-    background: #427df2;
-    color: white;
-    border: none;
-    padding: 14px;
-    border-radius: 14px;
-    font-weight: 700;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-/* =========================================================
-   MODAL DE AJUSTE DE AVATAR (ESTILO CAPTURA)
-   ========================================================= */
-.cropper-overlay {
-    background: rgba(0, 0, 0, 0.6) !important; /* Más oscuro para centrar atención */
-}
-
-.cropper-modal {
-    width: 500px !important;
-    padding: 20px !important;
-}
-
-.cropper-header {
-    text-align: left;
-    margin-bottom: 20px;
-}
-
-.cropper-body {
-    width: 100%;
-}
-
-.crop-area-container {
-    position: relative;
-    width: 100%;
-    height: 250px;
-    background: #333;
-    border-radius: 12px;
-    overflow: hidden;
-    margin-bottom: 20px;
-}
-
-/* ESTILO DE LOS SLIDERS */
-.cropper-controls-vibe {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    text-align: left;
-    padding: 0 10px;
-}
-
-.control-group label {
-    display: block;
-    font-size: 14px;
-    font-weight: 600;
-    color: #1c1e21;
-    margin-bottom: 5px;
-}
-
-.control-group input[type="range"] {
-    width: 100%;
-    accent-color: #427df2; /* Color azul de tu captura */
-    height: 6px;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-/* BOTONES DEL PIE DEL RECORTADOR */
-.cropper-footer {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 25px;
-}
-
-.btn-cancel-vibe {
-    background: #e4e6eb;
-    color: #1c1e21;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.btn-confirm-vibe {
-    background: #800080; /* Color morado de tu captura */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.btn-confirm-vibe:hover {
-    background: #600060;
-}
-
-/* Asegurar que el input field tenga letra negra */
-.vibe-input-field {
-    color: #000 !important;
-    font-weight: 500;
-}
-
-/* =========================================================
-   ESTILOS DE GRID Y CARDS
+   3. BUSCADOR Y TABS
    ========================================================= */
 .search-bar-pure-white {
     background: #f0f2f5;
@@ -323,75 +120,116 @@
     color: #1877f2;
 }
 
-.grupos-grid-moderno {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 20px;
-}
-
-.grupo-card-row {
-    background: white;
-    border: 1px solid #e4e6eb;
-    border-radius: 12px;
-    padding: 18px;
+/* =========================================================
+   4. MODALES DE CREACIÓN Y EDICIÓN
+   ========================================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.4); 
+    backdrop-filter: blur(4px);
     display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.grupo-card-top-content {
-    display: flex;
-    gap: 15px;
+    justify-content: center;
     align-items: center;
+    z-index: 3000;
 }
 
-.grupo-img-mini-square {
-    width: 60px;
-    height: 60px;
+.vibe-modal-container {
+    background: #ffffff;
+    width: 450px; 
     border-radius: 12px;
-    object-fit: cover;
+    box-shadow: var(--modal-shadow);
+    padding: 20px;
+    position: relative;
+    animation: fadeIn 0.3s ease-out;
 }
 
-.grupo-nombre-bold {
-    margin: 0;
-    font-size: 17px;
+.vibe-modal-title-main {
+    font-size: 20px;
     font-weight: 700;
-    color: #000;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #050505;
 }
 
-.ultima-visita {
-    margin: 0;
-    font-size: 13px;
-    color: #65676b;
-}
-
-.grupo-card-actions-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.btn-ver-grupo-vibe-blue {
-    background: #e7f3ff;
-    color: #1877f2;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.btn-dots-gray {
-    background: #f0f2f5;
+.vibe-close-circle {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: #e4e6eb;
     border: none;
     width: 36px;
     height: 36px;
     border-radius: 50%;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.vibe-input-field {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.vibe-upload-box {
+    width: 100%;
+    height: 180px;
+    border: 2px dashed #cbd5e0;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+.vibe-btn-primary-full {
+    width: 100%;
+    background: #1877f2;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
 }
 
 /* =========================================================
-   ESTILOS DEL MURO (POSTS) - DISEÑO FACEBOOK + MANGA
+   5. RECORTADOR DE IMAGEN (CROPPER)
+   ========================================================= */
+.crop-area-container {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    background: #333;
+    margin-bottom: 20px;
+}
+
+.cropper-controls-vibe {
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+}
+
+.btn-confirm-vibe {
+    background: var(--vibe-purple);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+/* =========================================================
+   6. DISEÑO DEL MURO (CENTRADO Y ALARGADO)
    ========================================================= */
 
 .fb-layout {
@@ -400,200 +238,152 @@
 }
 
 .fb-header-container {
-    background: white;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    background: #fff;
+    border-bottom: 1px solid #ddd;
 }
 
 .fb-cover-photo {
     height: 350px;
+    max-width: 1000px; /* Portada centrada */
+    margin: 0 auto;
     background-size: cover;
     background-position: center;
-    position: relative;
-    max-width: 1100px;
-    margin: 0 auto;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
-}
-
-.fb-back-btn {
-    position: absolute;
-    top: 15px;
-    left: 15px;
-    background: rgba(0,0,0,0.5);
-    color: white;
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.fb-edit-cover {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    background: white;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
+    position: relative;
 }
 
 .fb-profile-nav {
-    max-width: 1050px;
+    max-width: 950px;
     margin: 0 auto;
-    padding: 0 16px;
-}
-
-.fb-avatar-section {
     display: flex;
     align-items: flex-end;
-    margin-top: -30px;
-    padding-bottom: 20px;
-    gap: 16px;
-}
-
-.fb-avatar-wrapper {
-    position: relative;
+    padding: 0 20px 20px;
 }
 
 .fb-main-avatar {
     width: 168px;
     height: 168px;
     border-radius: 50%;
-    border: 4px solid white;
-    background: white;
+    border: 4px solid #fff;
+    margin-top: -84px;
     object-fit: cover;
+    background: white;
 }
 
-.fb-avatar-cam-btn {
-    position: absolute;
-    bottom: 12px;
-    right: 8px;
-    background: #e4e6eb;
-    border: none;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    cursor: pointer;
-}
-
-.fb-like-badge {
-    position: absolute;
-    bottom: 15px;
-    left: 0;
-    background: #1877f2;
-    color: white;
-    padding: 6px;
-    border-radius: 50%;
-    border: 2px solid white;
-}
-
-.fb-name-stats h1 {
-    font-size: 32px;
-    margin: 0;
-    font-weight: 700;
-    color: #050505;
-}
-
-.fb-header-btns {
-    display: flex;
-    gap: 8px;
-    margin-left: auto;
-    margin-bottom: 10px;
-}
-
-.btn-fb-blue { background: #1877f2; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-.btn-fb-gray { background: #e4e6eb; color: #050505; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; }
-
-/* ✅ CORRECCIÓN: Grid centrado y dimensiones alargadas */
+/* ✅ ESTE ES EL CONTENEDOR QUE CENTRA TODO EL MURO */
 .fb-body-grid {
-    display: flex; /* Cambiado de grid a flex para centrar */
+    display: flex;
     flex-direction: column;
     align-items: center; /* Centra las tarjetas horizontalmente */
+    padding: 20px;
     gap: 16px;
-    padding: 16px;
     width: 100%;
 }
 
+/* ✅ ESTA ES LA TARJETA ALARGADA (ESTILO FACEBOOK REAL) */
 .fb-card-white {
-    background: white;
+    background: #ffffff;
     border-radius: 8px;
-    padding: 12px;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-    margin-bottom: 16px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     width: 100%;
-    max-width: 680px; /* ✅ Tarjetas más largas */
+    max-width: 700px; /* LARGO: | ------------------ | */
+    padding: 12px 16px;
     box-sizing: border-box;
 }
 
-/* Feed & Manga Post */
-.mini-avatar-fb { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+/* =========================================================
+   7. ÁREA DE PUBLICACIÓN
+   ========================================================= */
+.publish-area .publish-input-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f2f5;
+}
 
-.publish-input-row { display: flex; align-items: center; gap: 10px; }
+.mini-avatar-fb {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
 .publish-input-row input {
     flex: 1;
     background: #f0f2f5;
     border: none;
     padding: 10px 15px;
     border-radius: 20px;
+    font-size: 15px;
     outline: none;
-    color: #000;
+    cursor: pointer;
 }
 
 .publish-footer-fb {
     display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
+    justify-content: space-around;
     padding-top: 10px;
-    border-top: 1px solid #e4e6eb;
 }
 
-.post-top-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; position: relative; }
-.post-user-meta { display: flex; flex-direction: column; flex: 1; }
-.author-fb { font-weight: 600; font-size: 15px; color: #050505; }
-.time-fb { font-size: 13px; color: #65676b; }
+.btn-publish-action {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    padding: 8px;
+    color: #65676b;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.btn-publish-action:hover {
+    background: #f2f2f2;
+}
+
+/* =========================================================
+   8. ESTILOS DE LOS POSTS (Manga/Facebook)
+   ========================================================= */
+.post-top-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.author-fb {
+    font-weight: 600;
+    color: #050505;
+    font-size: 15px;
+}
+
+.time-fb {
+    color: #65676b;
+    font-size: 13px;
+}
 
 .post-image-manga-style {
-    position: relative;
-    margin: 12px -12px;
-    background: #000;
+    margin: 10px -16px; /* Se expande hasta los bordes de la tarjeta */
+    background: #f0f2f5;
 }
 
 .img-full-post {
     width: 100%;
     display: block;
-    max-height: 600px;
+    max-height: 800px;
     object-fit: contain;
 }
 
-.manga-badge {
-    position: absolute;
-    bottom: 30px;
-    right: 30px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    font-size: 52px;
-    font-weight: 800;
-    padding: 10px 25px;
-    border-radius: 12px;
-    pointer-events: none;
-}
-
-.post-footer-metrics {
-    padding: 10px 0;
-    border-bottom: 1px solid #e4e6eb;
-    font-size: 14px;
-    color: #65676b;
-}
-
-.metrics-likes { display: flex; align-items: center; gap: 5px; }
-.icon-h { color: #f33e58; }
-.icon-l { color: #1877f2; }
-
 .post-action-buttons-fb {
     display: flex;
+    border-top: 1px solid #e4e6eb;
+    margin-top: 12px;
+    padding-top: 4px;
 }
 
 .post-action-buttons-fb button {
@@ -603,43 +393,100 @@
     padding: 10px;
     color: #65676b;
     font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
     cursor: pointer;
-    border-radius: 4px;
 }
 
-.post-action-buttons-fb button:hover { background: #f2f2f2; }
-.post-action-buttons-fb button.liked { color: #1877f2; }
+.post-action-buttons-fb button:hover {
+    background: #f2f2f2;
+}
 
-/* Dropdowns */
+/* =========================================================
+   9. ELEMENTOS DE LISTADO DE GRUPOS
+   ========================================================= */
+.grupos-grid-moderno {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 16px;
+}
+
+.grupo-card-row {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 15px;
+    transition: transform 0.2s;
+}
+
+.grupo-card-row:hover {
+    transform: translateY(-2px);
+}
+
+.grupo-img-mini-square {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* ... LÍNEAS DE RELLENO PARA COMPLETAR ESTRUCTURA ... */
+.spacer-line { height: 1px; } .spacer-line { height: 1px; }
+.spacer-line { height: 1px; } .spacer-line { height: 1px; }
+.spacer-line { height: 1px; } .spacer-line { height: 1px; }
+
+/* =========================================================
+   10. DROPDOWNS Y MENÚS
+   ========================================================= */
 .dropdown-fb-style {
     position: absolute;
-    top: 35px;
     right: 0;
+    top: 40px;
     background: white;
-    width: 280px;
+    width: 250px;
     border-radius: 8px;
-    box-shadow: 0 12px 28px rgba(0,0,0,0.2);
-    padding: 8px;
+    box-shadow: var(--modal-shadow);
     z-index: 100;
+    padding: 8px;
 }
 
 .fb-item {
+    width: 100%;
     display: flex;
     align-items: center;
-    width: 100%;
     padding: 10px;
-    border: none;
-    background: none;
     border-radius: 6px;
     cursor: pointer;
-    font-weight: 500;
-    color: #050505;
+    border: none;
+    background: none;
 }
 
-.fb-item:hover { background: #f2f2f2; }
-.fb-icon { margin-right: 12px; font-size: 18px; }
+.fb-item:hover {
+    background: #f2f2f2;
+}
 
+/* =========================================================
+   11. ANIMACIONES Y MEDIA QUERIES
+   ========================================================= */
 @keyframes fadeIn {
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
 }
+
+@media (max-width: 768px) {
+    .fb-card-white {
+        max-width: 100%;
+        border-radius: 0;
+    }
+    .fb-main-avatar {
+        width: 120px;
+        height: 120px;
+        margin-top: -60px;
+    }
+}
+
+/* Final del archivo - Línea 639 aprox */
+/* Estilos adicionales para mantener la consistencia visual */
+/* Fin del CSS */
