@@ -645,6 +645,19 @@
 .fb-item:hover { background: #f2f2f2; }
 .fb-icon { margin-right: 12px; font-size: 18px; }
 
+.avatar-circle-wrapper {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+.round-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 @keyframes fadeIn {
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
