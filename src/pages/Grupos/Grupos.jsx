@@ -215,8 +215,8 @@ const Grupos = () => {
                     </div>
                     <div className="fb-profile-nav">
                         <div className="fb-avatar-section">
-                            <div className="fb-avatar-wrapper">
-                                <img src={grupoData.imagen || "https://via.placeholder.com/150"} alt="avatar" className="fb-main-avatar" />
+                            <div className="fb-avatar-wrapper" style={{ borderRadius: '50%', overflow: 'hidden' }}>
+                                <img src={grupoData.imagen || "https://via.placeholder.com/150"} alt="avatar" className="fb-main-avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                             </div>
                             <div className="fb-name-stats">
                                 <h1 style={{color: '#000'}}>{grupoData.nombre}</h1>
@@ -234,7 +234,9 @@ const Grupos = () => {
                     <main className="fb-feed-center">
                         <div className="fb-card-white publish-area">
                             <div className="publish-input-row">
-                                {avatar ? <img src={avatar} className="mini-avatar-fb" alt="yo" /> : <FaUserCircle size={40} color="#ccc" className="mini-avatar-fb" />}
+                                <div className="avatar-circle-wrapper">
+                                    {avatar ? <img src={avatar} className="mini-avatar-fb" alt="yo" /> : <FaUserCircle size={40} color="#ccc" className="mini-avatar-fb" />}
+                                </div>
                                 <input 
                                     style={{color: '#000'}}
                                     placeholder={`¿Qué compartes hoy, ${userName}?`} 
@@ -262,11 +264,11 @@ const Grupos = () => {
                             return (
                                 <div key={post._id} className="fb-card-white post-container">
                                     <div className="post-top-header">
-                                        <div className="mini-avatar-fb">
+                                        <div className="mini-avatar-fb avatar-circle-wrapper">
                                             {esMiPost ? (
-                                                avatar ? <img src={avatar} alt="yo" /> : <FaUserCircle size={40} color="#ccc" />
+                                                avatar ? <img src={avatar} alt="yo" className="round-img" /> : <FaUserCircle size={40} color="#ccc" />
                                             ) : (
-                                                post.autorFoto ? <img src={post.autorFoto} alt="autor" /> : <FaUserCircle size={40} color="#ccc" />
+                                                post.autorFoto ? <img src={post.autorFoto} alt="autor" className="round-img" /> : <FaUserCircle size={40} color="#ccc" />
                                             )}
                                         </div>
                                         <div className="post-user-meta">
