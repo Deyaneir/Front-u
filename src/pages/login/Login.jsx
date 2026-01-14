@@ -68,14 +68,20 @@ const Login = () => {
                 }
             );
 
-            const { token, nombre, correoInstitucional, rol } = res.data;
+            // AUMENTO: Extraemos 'fotoPerfil' de la respuesta del backend
+            const { token, nombre, correoInstitucional, rol, fotoPerfil } = res.data;
 
             setToken(token);
             setRol(rol);
+            
+            // GUARDADO EN LOCALSTORAGE
             localStorage.setItem("token", token);
             localStorage.setItem("rol", rol);
             localStorage.setItem("nombre", nombre);
             localStorage.setItem("correo", correoInstitucional);
+            
+            // AUMENTO CLAVE: Guardamos la foto para que 'Grupos.jsx' pueda usarla
+            localStorage.setItem("fotoPerfil", fotoPerfil || ""); 
 
             toast.update(loadingToast, {
                 render: "¡Bienvenido!",
@@ -119,7 +125,6 @@ const Login = () => {
                             {errors.email && <span className="error-text">{errors.email.message}</span>}
                         </div>
 
-                        {/* PASSWORD KAWAII */}
                         <div className="input-group password-group" style={{ position: "relative" }}>
                             <input
                                 type={showPassword ? "text" : "password"}
