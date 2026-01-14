@@ -37,7 +37,7 @@ const Grupos = () => {
 
     const [favoritos, setFavoritos] = useState({});
     const [likes, setLikes] = useState({});
-    const [guardados, setGuardados] = useState({}); 
+    const [guardados, setGuardados] = useState({});
 
     const fileInputRef = useRef(null);
     const postFotoRef = useRef(null);
@@ -47,9 +47,10 @@ const Grupos = () => {
     const userEmail = localStorage.getItem("correo");
     const userName = localStorage.getItem("nombre") || "Usuario";
     
-    // AUMENTO: Obtener la foto de perfil del usuario logueado desde LocalStorage
+    // OBTENEMOS LA FOTO (Asegúrate que la clave "fotoPerfil" sea la misma del Login)
     const userPhoto = localStorage.getItem("fotoPerfil");
 
+    // --- FUNCIONES DEL CROPPER ---
     const onCropComplete = useCallback((_ , pixels) => {
         setCroppedAreaPixels(pixels);
     }, []);
@@ -173,6 +174,8 @@ const Grupos = () => {
         reader.onloadend = () => {
             if (destino === 'grupo') setImageToCrop(reader.result);
             else if (destino === 'post') setFotoPost(reader.result);
+            else if (destino === 'banner-update') console.log("Nueva portada");
+            else if (destino === 'perfil-update') console.log("Nuevo perfil");
         };
         reader.readAsDataURL(file);
     };
@@ -185,7 +188,6 @@ const Grupos = () => {
             const res = await fetch(`${API_URL}/${grupoActivo._id}/post`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                // ENVIAMOS autorFoto capturada del localStorage
                 body: JSON.stringify({ 
                     autor: userName, 
                     autorFoto: userPhoto, 
@@ -194,7 +196,6 @@ const Grupos = () => {
                 })
             });
             const postGuardado = await res.json();
-            // Actualizamos el estado local para ver el post al instante
             setGrupos(prev => prev.map(g => g._id === grupoActivo._id ? { ...g, posts: [postGuardado, ...g.posts] } : g));
             setNuevoPost(""); 
             setFotoPost(null);
@@ -257,14 +258,19 @@ const Grupos = () => {
 
                 <div className="fb-body-grid single-column">
                     <main className="fb-feed-center">
-                        {/* AREA DE PUBLICAR */}
                         <div className="fb-card-white publish-area">
                             <div className="publish-input-row">
+                                {/* CORRECCIÓN: Lógica para mostrar foto real o icono si no carga */}
                                 {userPhoto ? (
-                                    <img src={userPhoto} className="mini-avatar-fb" alt="tu-perfil" />
-                                ) : (
-                                    <FaUserCircle size={40} color="#ccc" className="mini-avatar-fb" />
-                                )}
+                                    <img 
+                                        src={userPhoto} 
+                                        className="mini-avatar-fb" 
+                                        alt="perfil" 
+                                        onError={(e) => { e.target.style.display = 'none'; }} 
+                                    />
+                                ) : null}
+                                {(!userPhoto) && <FaUserCircle size={40} color="#ccc" className="mini-avatar-fb" />}
+
                                 <input 
                                     style={{color: '#000'}}
                                     placeholder={`¿Qué compartes hoy, ${userName}?`} 
@@ -285,16 +291,18 @@ const Grupos = () => {
                             </div>
                         </div>
 
-                        {/* LISTADO DE POSTS */}
                         {grupoData.posts?.map(post => (
                             <div key={post._id} className="fb-card-white post-container">
                                 <div className="post-top-header">
-                                    {/* Muestra la foto guardada en el post, si no existe usa el placeholder */}
+                                    {/* CORRECCIÓN: Priorizamos foto del autor guardada, si no tu foto actual */}
                                     {post.autorFoto ? (
                                         <img src={post.autorFoto} className="mini-avatar-fb" alt="autor" />
+                                    ) : (post.autor === userName && userPhoto) ? (
+                                        <img src={userPhoto} className="mini-avatar-fb" alt="yo" />
                                     ) : (
                                         <FaUserCircle size={40} color="#ccc" className="mini-avatar-fb" />
                                     )}
+
                                     <div className="post-user-meta">
                                         <span className="author-fb" style={{color: '#000'}}>{post.autor}</span>
                                         <span className="time-fb" style={{color: '#65676b'}}>Hace un momento · <FaGlobeAmericas /></span>
@@ -333,7 +341,7 @@ const Grupos = () => {
         );
     }
 
-    // --- VISTA LISTA DE GRUPOS (PÁGINA PRINCIPAL) ---
+    // --- VISTA LISTA DE GRUPOS ---
     return (
         <section className="grupos-page">
             <div className="grupos-header-top">
