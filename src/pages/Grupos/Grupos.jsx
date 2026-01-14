@@ -213,21 +213,48 @@ const Grupos = () => {
                         <button className="fb-back-btn" onClick={salirDeGrupo}><FaArrowLeft /></button>
                         <button className="fb-edit-cover"><FaCamera /> Editar</button>
                     </div>
-                    <div className="fb-profile-nav">
-                        <div className="fb-avatar-section">
-                            <div className="fb-avatar-wrapper" style={{ borderRadius: '50%', overflow: 'hidden' }}>
-                                <img src={grupoData.imagen || "https://via.placeholder.com/150"} alt="avatar" className="fb-main-avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            </div>
-                            <div className="fb-name-stats">
-                                <h1 style={{color: '#000'}}>{grupoData.nombre}</h1>
-                                <p style={{color: '#333'}}><FaGlobeAmericas /> Grupo Público · <b>{grupoData.miembrosArray?.length || 1} miembros</b></p>
-                            </div>
-                            <div className="fb-header-btns">
-                                <button className="btn-fb-blue"><FaPlus /> Invitar</button>
-                                <button className="btn-fb-gray"><FaUserFriends /> Miembro</button>
-                            </div>
-                        </div>
-                    </div>
+                   <div className="fb-profile-nav">
+    <div className="fb-avatar-section">
+        {/* Contenedor del Avatar de Perfil del Grupo */}
+        <div className="fb-avatar-wrapper" style={{ 
+    width: '168px', 
+    height: '168px', 
+    minWidth: '168px', // Agrega esto para que no se aplaste
+    minHeight: '168px', // Agrega esto
+    borderRadius: '50%', 
+    border: '4px solid white', 
+    overflow: 'hidden', 
+    backgroundColor: '#fff',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    position: 'relative' // Por si luego quieres poner el icono de la cámara
+}}>
+    <img 
+        src={grupoData.imagen || "https://via.placeholder.com/150"} 
+        alt="avatar" 
+        style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'cover' // Esto hace que la imagen se recorte y no se estire
+        }} 
+    />
+</div>
+
+        <div className="fb-name-stats">
+            <h1 style={{color: '#000', margin: '0'}}>{grupoData.nombre}</h1>
+            <p style={{color: '#65676b', margin: '5px 0'}}>
+                <FaGlobeAmericas /> Grupo Público · <b>{grupoData.miembrosArray?.length || 1} miembros</b>
+            </p>
+        </div>
+
+        <div className="fb-header-btns">
+            <button className="btn-fb-blue"><FaPlus /> Invitar</button>
+            <button className="btn-fb-gray"><FaUserFriends /> Miembro</button>
+        </div>
+    </div>
+</div>
                 </div>
 
                 <div className="fb-body-grid single-column">
