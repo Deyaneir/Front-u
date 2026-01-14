@@ -3,7 +3,8 @@ import Cropper from 'react-easy-crop';
 import { 
     FaPlus, FaArrowLeft, FaPaperPlane, 
     FaCamera, FaThumbsUp, FaComment, FaSearch, FaTimes, FaEllipsisH, FaShare, 
-    FaHeart, FaBell, FaRegFileAlt, FaChevronRight, FaThumbtack, FaExclamationCircle, FaSignOutAlt, FaTrash
+    FaHeart, FaBell, FaRegFileAlt, FaChevronRight, FaThumbtack, FaExclamationCircle, FaSignOutAlt, FaTrash,
+    FaInfoCircle, FaShieldAlt, FaUserFriends, FaRegImage, FaChartBar, FaSmile
 } from 'react-icons/fa';
 import './Grupos.css';
 
@@ -14,6 +15,9 @@ const Grupos = () => {
     const [filtro, setFiltro] = useState("");
     const [pestana, setPestana] = useState("todos");
     const [menuAbiertoId, setMenuAbiertoId] = useState(null);
+    
+    // --- ESTADO AUMENTADO: MODAL DE DETALLES DEL GRUPO ---
+    const [grupoParaDetalle, setGrupoParaDetalle] = useState(null);
 
     const [grupoActivo, setGrupoActivo] = useState(() => {
         const persistido = localStorage.getItem("ultimoGrupoVisitado");
@@ -26,7 +30,6 @@ const Grupos = () => {
     const [nuevoGrupo, setNuevoGrupo] = useState({ nombre: "", imagen: "" });
     const [loading, setLoading] = useState(false);
 
-    // ESTADOS PARA EL RECORTADOR (CROPPER)
     const [imageToCrop, setImageToCrop] = useState(null);
     const [crop, setCrop] = useState({ x: 0, y: 0 });
     const [zoom, setZoom] = useState(1);
@@ -44,7 +47,6 @@ const Grupos = () => {
     const userEmail = localStorage.getItem("correo");
     const userName = localStorage.getItem("nombre") || "Usuario";
 
-    // --- FUNCIONES DEL CROPPER ---
     const onCropComplete = useCallback((_ , pixels) => {
         setCroppedAreaPixels(pixels);
     }, []);
@@ -56,23 +58,19 @@ const Grupos = () => {
             await image.decode();
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-
             canvas.width = croppedAreaPixels.width;
             canvas.height = croppedAreaPixels.height;
-
             ctx.translate(canvas.width / 2, canvas.height / 2);
             ctx.rotate((rotation * Math.PI) / 180);
             ctx.translate(-canvas.width / 2, -canvas.height / 2);
-
             ctx.drawImage(
                 image,
                 croppedAreaPixels.x, croppedAreaPixels.y, croppedAreaPixels.width, croppedAreaPixels.height,
                 0, 0, croppedAreaPixels.width, croppedAreaPixels.height
             );
-
             const result = canvas.toDataURL('image/jpeg');
             setNuevoGrupo({ ...nuevoGrupo, imagen: result });
-            setImageToCrop(null); // Cerrar editor
+            setImageToCrop(null);
         } catch (e) {
             console.error("Error al recortar", e);
         }
@@ -167,8 +165,6 @@ const Grupos = () => {
         reader.onloadend = () => {
             if (destino === 'grupo') setImageToCrop(reader.result);
             else if (destino === 'post') setFotoPost(reader.result);
-            else if (destino === 'banner-update') console.log("Nueva portada");
-            else if (destino === 'perfil-update') console.log("Nuevo perfil");
         };
         reader.readAsDataURL(file);
     };
@@ -213,89 +209,127 @@ const Grupos = () => {
         finally { setLoading(false); }
     };
 
+    // --- VISTA DE MURO AUMENTADA (ESTILO TWITTER) ---
     if (grupoActivo) {
         const grupoData = grupos.find(g => g._id === grupoActivo._id) || grupoActivo;
         return (
-            <div className="grupo-muro-wrapper">
-                <div className="perfil-header-container">
+            <div className="grupo-muro-wrapper twitter-style">
+                {/* CABECERA: BANNER */}
+                <div className="muro-banner-container">
                     <div className="muro-banner-bg" style={{ backgroundImage: `url(${grupoData.imagen})` }}>
-                        <button className="btn-regresar-float" onClick={salirDeGrupo}><FaArrowLeft /></button>
-                        <button className="btn-edit-banner-purple" onClick={() => bannerInputRef.current.click()}>
-                            <FaCamera /> <span>Editar portada</span>
-                        </button>
-                        <input type="file" ref={bannerInputRef} style={{display:'none'}} accept="image/*" onChange={(e) => handleImagePreview(e, 'banner-update')} />
+                        <button className="btn-regresar-circle" onClick={salirDeGrupo}><FaArrowLeft /></button>
                     </div>
-                    <div className="perfil-info-wrapper">
-                        <div className="perfil-info-main-row">
-                            <div className="foto-perfil-overlap">
-                                <img src={grupoData.imagen || "https://via.placeholder.com/150"} alt="grupo" />
-                                <button className="btn-subir-perfil-muro" onClick={() => perfilInputRef.current.click()}>
-                                    <FaCamera />
-                                </button>
-                                <input type="file" ref={perfilInputRef} style={{display:'none'}} accept="image/*" onChange={(e) => handleImagePreview(e, 'perfil-update')} />
-                            </div>
-                            <div className="perfil-textos-header">
-                                <h2 className="perfil-nombre-bold">{grupoData.nombre}</h2>
-                                <p className="perfil-stats-social">
-                                    <span className="stats-count"><b>{grupoData.miembrosArray?.length || 1}</b> miembros</span>
-                                    <span className="stats-divider">•</span>
-                                    <span className="stats-privacy">Grupo público</span>
-                                </p>
-                            </div>
-                            <div className="perfil-acciones-derecha">
-                                <button className="btn-header-invite"><FaPlus /> Invitar</button>
-                                <button className="btn-header-member-status">
-                                    {grupoData.creadorEmail === userEmail ? "Administrador" : "Miembro"}
-                                </button>
-                                <button className="btn-header-more"><FaEllipsisH /></button>
-                            </div>
+                </div>
+
+                {/* INFO DEL PERFIL / GRUPO */}
+                <div className="perfil-info-twitter">
+                    <div className="perfil-header-row">
+                        <div className="foto-perfil-overlap-tw">
+                            <img src={grupoData.imagen || "https://via.placeholder.com/150"} alt="grupo" />
                         </div>
-                        <div className="muro-nav-tabs">
-                            <button className="nav-tab active">Conversación</button>
-                            <button className="nav-tab">Miembros</button>
-                            <button className="nav-tab">Eventos</button>
-                            <button className="nav-tab">Multimedia</button>
+                        <div className="perfil-acciones-tw">
+                            <button className="btn-tw-outline" onClick={(e) => { e.stopPropagation(); setGrupoParaDetalle(grupoData); }}><FaEllipsisH /></button>
+                            <button className="btn-tw-outline"><FaBell /></button>
+                            <button className="btn-tw-main">
+                                {grupoData.miembrosArray?.includes(userEmail) ? "Siguiendo" : "Unirse"}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="perfil-textos-tw">
+                        <h2 className="tw-nombre">{grupoData.nombre} <FaShieldAlt className="icon-verify" /></h2>
+                        <p className="tw-username">@{grupoData.nombre.toLowerCase().replace(/\s+/g, '')}</p>
+                        
+                        <p className="tw-descripcion">
+                            Comunidad oficial de {grupoData.nombre}. Únete para compartir contenido, participar en eventos y conectar con otros miembros.
+                        </p>
+
+                        <div className="tw-meta-info">
+                            <span><FaRegFileAlt /> Comunidad Vibe</span>
+                            <span><FaPlus /> Creado por {grupoData.creadorEmail.split('@')[0]}</span>
+                        </div>
+
+                        <div className="tw-stats-row">
+                            <span><b>{grupoData.miembrosArray?.length || 0}</b> Miembros</span>
+                            <span><b>{Math.floor(Math.random() * 100)}</b> Siguiendo</span>
+                            <span><b>{grupoData.posts?.length || 0}</b> Posts</span>
                         </div>
                     </div>
                 </div>
-                <div className="muro-contenido-central">
-                    <div className="publicar-card-social">
-                        <div className="publicar-top">
-                            <img src="https://via.placeholder.com/40" className="user-avatar-small" alt="u" />
-                            <input type="text" className="input-social-white" placeholder={`¿Qué compartes hoy, ${userName}?`}
-                                value={nuevoPost} onChange={(e) => setNuevoPost(e.target.value)} />
-                            <button className="btn-send-minimal" onClick={handlePublicar} disabled={loading}><FaPaperPlane /></button>
-                        </div>
-                        {fotoPost && (
-                            <div className="container-previsualizacion">
-                                <img src={fotoPost} alt="Vista previa" className="img-previa-post" />
-                                <button className="btn-borrar-previa" onClick={() => setFotoPost(null)}><FaTimes /></button>
+
+                {/* TABS NAVEGACIÓN */}
+                <div className="muro-nav-tabs-tw">
+                    <button className="nav-tab-tw active">Publicaciones</button>
+                    <button className="nav-tab-tw">Respuestas</button>
+                    <button className="nav-tab-tw">Fotos y vídeos</button>
+                    <button className="nav-tab-tw">Me gusta</button>
+                </div>
+
+                {/* CONTENIDO CENTRAL: PUBLICAR Y FEED */}
+                <div className="muro-contenido-central-tw">
+                    {/* CUADRO DE PUBLICAR */}
+                    <div className="publicar-card-tw">
+                        <div className="publicar-input-group">
+                            <img src="https://via.placeholder.com/48" className="user-avatar-tw" alt="u" />
+                            <div className="input-tw-container">
+                                <textarea 
+                                    className="input-tw-transparent" 
+                                    placeholder="¿Qué está pasando?"
+                                    value={nuevoPost} 
+                                    onChange={(e) => setNuevoPost(e.target.value)} 
+                                />
+                                {fotoPost && (
+                                    <div className="previa-post-tw">
+                                        <img src={fotoPost} alt="p" />
+                                        <button onClick={() => setFotoPost(null)} className="btn-remove-foto"><FaTimes /></button>
+                                    </div>
+                                )}
+                                <div className="publicar-actions-tw">
+                                    <div className="iconos-tw-media">
+                                        <button onClick={() => postFotoRef.current.click()} title="Media"><FaRegImage /></button>
+                                        <button title="GIF"><FaPlus /></button>
+                                        <button title="Encuesta"><FaChartBar /></button>
+                                        <button title="Emoji"><FaSmile /></button>
+                                    </div>
+                                    <button className="btn-tw-post" onClick={handlePublicar} disabled={loading || (!nuevoPost.trim() && !fotoPost)}>
+                                        {loading ? "..." : "Postear"}
+                                    </button>
+                                    <input type="file" ref={postFotoRef} style={{display: 'none'}} accept="image/*" onChange={(e) => handleImagePreview(e, 'post')} />
+                                </div>
                             </div>
-                        )}
-                        <div className="publicar-bottom">
-                            <button className="btn-action-foto" onClick={() => postFotoRef.current.click()}><FaCamera className="icon-camera-green" /> Foto</button>
-                            <input type="file" ref={postFotoRef} style={{display: 'none'}} accept="image/*" onChange={(e) => handleImagePreview(e, 'post')} />
                         </div>
                     </div>
-                    <div className="muro-posts-lista">
+
+                    {/* FEED DE POSTS */}
+                    <div className="lista-feed-tw">
                         {grupoData.posts?.map(post => (
-                            <div key={post._id} className="post-item-card-social">
-                                <div className="post-header-social">
-                                    <div className="post-user-info">
-                                        <img src="https://via.placeholder.com/40" alt="u" className="author-avatar" />
-                                        <div>
-                                            <h4 className="author-name">{post.autor}</h4>
-                                            <span className="post-date">Justo ahora</span>
-                                        </div>
-                                    </div>
-                                    <button className={`btn-corazon-top ${favoritos[post._id] ? 'active' : ''}`} onClick={() => toggleFavorito(post._id)}><FaHeart /></button>
+                            <div key={post._id} className="post-tw-card">
+                                <div className="post-tw-aside">
+                                    <div className="avatar-post-tw"></div>
                                 </div>
-                                <p className="post-text-content">{post.contenido}</p>
-                                {post.foto && <div className="contenedor-imagen-post-main"><img src={post.foto} alt="post" /></div>}
-                                <div className="post-footer-actions">
-                                    <button className={`action-btn-social ${likes[post._id] ? 'liked' : ''}`} onClick={() => toggleLike(post._id)}><FaThumbsUp /> Me gusta</button>
-                                    <button className="action-btn-social"><FaComment /> Comentar</button>
-                                    <button className="action-btn-social"><FaShare /> Compartir</button>
+                                <div className="post-tw-main">
+                                    <div className="post-tw-header">
+                                        <span className="author-tw">{post.autor}</span>
+                                        <span className="user-handle-tw">@{post.autor.toLowerCase().replace(/\s+/g, '')} · 1m</span>
+                                        <FaEllipsisH className="post-opt-tw" />
+                                    </div>
+                                    <p className="content-tw">{post.contenido}</p>
+                                    {post.foto && (
+                                        <div className="post-img-container-tw">
+                                            <img src={post.foto} className="img-post-tw" alt="f" />
+                                        </div>
+                                    )}
+                                    <div className="actions-tw-row">
+                                        <button className="action-tw-btn"><FaComment /> <span>{Math.floor(Math.random() * 10)}</span></button>
+                                        <button className="action-tw-btn"><FaShare /> <span>{Math.floor(Math.random() * 5)}</span></button>
+                                        <button 
+                                            className={`action-tw-btn ${likes[post._id] ? 'liked' : ''}`} 
+                                            onClick={() => toggleLike(post._id)}
+                                        >
+                                            <FaHeart /> <span>{likes[post._id] ? 1 : 0}</span>
+                                        </button>
+                                        <button className="action-tw-btn"><FaChartBar /> <span>{Math.floor(Math.random() * 100)}</span></button>
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -321,10 +355,12 @@ const Grupos = () => {
                 <FaSearch className="icon-s" />
                 <input type="text" placeholder="Buscar grupos..." value={filtro} onChange={(e) => setFiltro(e.target.value)} />
             </div>
+
             <div className="tabs-vibe">
                 <button className={pestana === "todos" ? "active" : ""} onClick={() => setPestana("todos")}>Todos los grupos</button>
                 <button className={pestana === "mis-grupos" ? "active" : ""} onClick={() => setPestana("mis-grupos")}>Mis grupos</button>
             </div>
+
             <div className="grupos-grid-moderno">
                 {grupos.filter(g => g.nombre?.toLowerCase().includes(filtro.toLowerCase())).map(grupo => (
                     <div key={grupo._id} className="grupo-card-row">
@@ -347,6 +383,9 @@ const Grupos = () => {
                                 {menuAbiertoId === grupo._id && (
                                     <div className="dropdown-fb-style">
                                         <div className="arrow-up-fb"></div>
+                                        <button className="fb-item" onClick={(e) => { e.stopPropagation(); setGrupoParaDetalle(grupo); }}>
+                                            <FaInfoCircle className="fb-icon" /> Información del grupo
+                                        </button>
                                         <button className="fb-item"><FaRegFileAlt className="fb-icon" /> Tu contenido</button>
                                         <button className="fb-item justify"><span><FaShare className="fb-icon" /> Compartir</span><FaChevronRight className="fb-arrow" /></button>
                                         {grupo.creadorEmail === userEmail ? (
@@ -358,7 +397,6 @@ const Grupos = () => {
                                                 <FaSignOutAlt className="fb-icon" /> Abandonar grupo
                                             </button>
                                         ) : null}
-                                        <button className="fb-item"><FaBell className="fb-icon" /> Notificaciones</button>
                                     </div>
                                 )}
                             </div>
@@ -366,6 +404,63 @@ const Grupos = () => {
                     </div>
                 ))}
             </div>
+
+            {/* --- MODAL AUMENTADO: DETALLES Y OPCIONES DE GRUPO --- */}
+            {grupoParaDetalle && (
+                <div className="modal-overlay" onClick={() => setGrupoParaDetalle(null)}>
+                    <div className="vibe-modal-container modal-detalle-grupo" onClick={(e) => e.stopPropagation()}>
+                        <div className="vibe-modal-header">
+                            <button className="vibe-close-circle" onClick={() => setGrupoParaDetalle(null)}>
+                                <FaTimes />
+                            </button>
+                            <h3 className="vibe-modal-title-main">Opciones de Comunidad</h3>
+                        </div>
+                        <div className="vibe-modal-content-body">
+                            <div className="detalle-grupo-header-mini">
+                                <img src={grupoParaDetalle.imagen} alt="p" className="img-detalle-circle" />
+                                <div>
+                                    <h4>{grupoParaDetalle.nombre}</h4>
+                                    <p>{grupoParaDetalle.miembrosArray?.length} Miembros • Privacidad Pública</p>
+                                </div>
+                            </div>
+                            <hr className="vibe-hr" />
+                            <div className="lista-opciones-detalle">
+                                <div className="opcion-item-vibe">
+                                    <FaShieldAlt className="opcion-icon" />
+                                    <div className="opcion-text">
+                                        <span>Reglas del grupo</span>
+                                        <p>Consulta las normas de convivencia</p>
+                                    </div>
+                                </div>
+                                <div className="opcion-item-vibe">
+                                    <FaUserFriends className="opcion-icon" />
+                                    <div className="opcion-text">
+                                        <span>Administradores</span>
+                                        <p>Contactar con el equipo de gestión</p>
+                                    </div>
+                                </div>
+                                <div className="opcion-item-vibe">
+                                    <FaBell className="opcion-icon" />
+                                    <div className="opcion-text">
+                                        <span>Notificaciones</span>
+                                        <p>Gestionar alertas de actividad</p>
+                                    </div>
+                                </div>
+                                <div className="opcion-item-vibe">
+                                    <FaThumbtack className="opcion-icon" />
+                                    <div className="opcion-text">
+                                        <span>Fijar grupo</span>
+                                        <p>Mantener al inicio de tu lista</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="vibe-modal-footer">
+                            <button className="vibe-btn-primary-full" onClick={() => setGrupoParaDetalle(null)}>Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* MODAL DE CREACIÓN */}
             {isModalOpen && (
@@ -411,14 +506,13 @@ const Grupos = () => {
                 </div>
             )}
 
-            {/* SEGUNDO MODAL: AJUSTAR AVATAR (ESTILO CAPTURA) */}
+            {/* SEGUNDO MODAL: AJUSTAR AVATAR */}
             {imageToCrop && (
                 <div className="modal-overlay cropper-overlay">
                     <div className="vibe-modal-container cropper-modal">
                         <div className="cropper-header">
-                            <h3 className="vibe-modal-title-main">Ajustar Avatar</h3>
+                            <h3 className="vibe-modal-title-main">Ajustar Imagen</h3>
                         </div>
-                        
                         <div className="cropper-body">
                             <div className="crop-area-container">
                                 <Cropper
@@ -431,36 +525,17 @@ const Grupos = () => {
                                     onZoomChange={setZoom}
                                     onRotationChange={setRotation}
                                     onCropComplete={onCropComplete}
-                                    cropShape="rect" // o "round" según prefieras
+                                    cropShape="rect"
                                     showGrid={true}
                                 />
                             </div>
-
                             <div className="cropper-controls-vibe">
-                                <div className="control-group">
-                                    <label>Zoom: {zoom.toFixed(1)}</label>
-                                    <input 
-                                        type="range" 
-                                        min={1} max={3} step={0.1} 
-                                        value={zoom} 
-                                        onChange={(e) => setZoom(parseFloat(e.target.value))} 
-                                    />
-                                </div>
-                                <div className="control-group">
-                                    <label>Rotación: {rotation}°</label>
-                                    <input 
-                                        type="range" 
-                                        min={0} max={360} step={1} 
-                                        value={rotation} 
-                                        onChange={(e) => setRotation(parseInt(e.target.value))} 
-                                    />
-                                </div>
+                                <input type="range" min={1} max={3} step={0.1} value={zoom} onChange={(e) => setZoom(parseFloat(e.target.value))} />
                             </div>
                         </div>
-
                         <div className="cropper-footer">
                             <button className="btn-cancel-vibe" onClick={() => setImageToCrop(null)}>Cancelar</button>
-                            <button className="btn-confirm-vibe" onClick={handleConfirmCrop}>Recortar y Guardar</button>
+                            <button className="btn-confirm-vibe" onClick={handleConfirmCrop}>Guardar Recorte</button>
                         </div>
                     </div>
                 </div>
