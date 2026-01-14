@@ -209,127 +209,131 @@ const Grupos = () => {
         finally { setLoading(false); }
     };
 
-    // --- VISTA DE MURO AUMENTADA (ESTILO TWITTER) ---
+    // --- VISTA DE MURO AUMENTADA (ESTILO FACEBOOK/MANGA) ---
     if (grupoActivo) {
         const grupoData = grupos.find(g => g._id === grupoActivo._id) || grupoActivo;
         return (
-            <div className="grupo-muro-wrapper twitter-style">
-                {/* CABECERA: BANNER */}
-                <div className="muro-banner-container">
-                    <div className="muro-banner-bg" style={{ backgroundImage: `url(${grupoData.imagen})` }}>
-                        <button className="btn-regresar-circle" onClick={salirDeGrupo}><FaArrowLeft /></button>
+            <div className="grupo-muro-wrapper facebook-layout">
+                {/* CABECERA ESTILO FACEBOOK (Imagen 1) */}
+                <div className="fb-header">
+                    <div className="fb-cover-photo" style={{ backgroundImage: `url(${grupoData.imagen})` }}>
+                        <button className="btn-back-fb" onClick={salirDeGrupo}><FaArrowLeft /></button>
                     </div>
-                </div>
-
-                {/* INFO DEL PERFIL / GRUPO */}
-                <div className="perfil-info-twitter">
-                    <div className="perfil-header-row">
-                        <div className="foto-perfil-overlap-tw">
-                            <img src={grupoData.imagen || "https://via.placeholder.com/150"} alt="grupo" />
-                        </div>
-                        <div className="perfil-acciones-tw">
-                            <button className="btn-tw-outline" onClick={(e) => { e.stopPropagation(); setGrupoParaDetalle(grupoData); }}><FaEllipsisH /></button>
-                            <button className="btn-tw-outline"><FaBell /></button>
-                            <button className="btn-tw-main">
-                                {grupoData.miembrosArray?.includes(userEmail) ? "Siguiendo" : "Unirse"}
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="perfil-textos-tw">
-                        <h2 className="tw-nombre">{grupoData.nombre} <FaShieldAlt className="icon-verify" /></h2>
-                        <p className="tw-username">@{grupoData.nombre.toLowerCase().replace(/\s+/g, '')}</p>
-                        
-                        <p className="tw-descripcion">
-                            Comunidad oficial de {grupoData.nombre}. Únete para compartir contenido, participar en eventos y conectar con otros miembros.
-                        </p>
-
-                        <div className="tw-meta-info">
-                            <span><FaRegFileAlt /> Comunidad Vibe</span>
-                            <span><FaPlus /> Creado por {grupoData.creadorEmail.split('@')[0]}</span>
-                        </div>
-
-                        <div className="tw-stats-row">
-                            <span><b>{grupoData.miembrosArray?.length || 0}</b> Miembros</span>
-                            <span><b>{Math.floor(Math.random() * 100)}</b> Siguiendo</span>
-                            <span><b>{grupoData.posts?.length || 0}</b> Posts</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* TABS NAVEGACIÓN */}
-                <div className="muro-nav-tabs-tw">
-                    <button className="nav-tab-tw active">Publicaciones</button>
-                    <button className="nav-tab-tw">Respuestas</button>
-                    <button className="nav-tab-tw">Fotos y vídeos</button>
-                    <button className="nav-tab-tw">Me gusta</button>
-                </div>
-
-                {/* CONTENIDO CENTRAL: PUBLICAR Y FEED */}
-                <div className="muro-contenido-central-tw">
-                    {/* CUADRO DE PUBLICAR */}
-                    <div className="publicar-card-tw">
-                        <div className="publicar-input-group">
-                            <img src="https://via.placeholder.com/48" className="user-avatar-tw" alt="u" />
-                            <div className="input-tw-container">
-                                <textarea 
-                                    className="input-tw-transparent" 
-                                    placeholder="¿Qué está pasando?"
-                                    value={nuevoPost} 
-                                    onChange={(e) => setNuevoPost(e.target.value)} 
-                                />
-                                {fotoPost && (
-                                    <div className="previa-post-tw">
-                                        <img src={fotoPost} alt="p" />
-                                        <button onClick={() => setFotoPost(null)} className="btn-remove-foto"><FaTimes /></button>
-                                    </div>
-                                )}
-                                <div className="publicar-actions-tw">
-                                    <div className="iconos-tw-media">
-                                        <button onClick={() => postFotoRef.current.click()} title="Media"><FaRegImage /></button>
-                                        <button title="GIF"><FaPlus /></button>
-                                        <button title="Encuesta"><FaChartBar /></button>
-                                        <button title="Emoji"><FaSmile /></button>
-                                    </div>
-                                    <button className="btn-tw-post" onClick={handlePublicar} disabled={loading || (!nuevoPost.trim() && !fotoPost)}>
-                                        {loading ? "..." : "Postear"}
-                                    </button>
-                                    <input type="file" ref={postFotoRef} style={{display: 'none'}} accept="image/*" onChange={(e) => handleImagePreview(e, 'post')} />
-                                </div>
+                    <div className="fb-profile-section">
+                        <div className="fb-profile-container">
+                            <div className="fb-avatar-wrapper">
+                                <img src={grupoData.imagen || "https://via.placeholder.com/150"} alt="profile" className="fb-avatar-main" />
+                                <div className="fb-avatar-camera"><FaCamera /></div>
+                            </div>
+                            <div className="fb-profile-info-text">
+                                <h1 className="fb-profile-name">{grupoData.nombre}</h1>
+                                <p className="fb-profile-stats">{grupoData.miembrosArray?.length || 0} amigos</p>
+                            </div>
+                            <div className="fb-profile-actions">
+                                <button className="fb-btn-info"><FaInfoCircle /> Información sobre las contribuciones</button>
+                                <button className="fb-btn-edit"><FaCamera /> Editar perfil</button>
+                                <button className="fb-btn-view"><FaSearch /> Ver perfil</button>
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* FEED DE POSTS */}
-                    <div className="lista-feed-tw">
-                        {grupoData.posts?.map(post => (
-                            <div key={post._id} className="post-tw-card">
-                                <div className="post-tw-aside">
-                                    <div className="avatar-post-tw"></div>
+                <div className="fb-body-content">
+                    {/* COLUMNA IZQUIERDA (INFO) */}
+                    <div className="fb-col-left">
+                        <div className="fb-card-white details-card">
+                            <h3>Detalles</h3>
+                            <p><FaRegFileAlt /> Comunidad oficial de {grupoData.nombre}</p>
+                            <p><FaPlus /> Creado por {grupoData.creadorEmail.split('@')[0]}</p>
+                            <button className="fb-btn-full">Editar detalles</button>
+                        </div>
+                    </div>
+
+                    {/* FEED CENTRAL */}
+                    <div className="fb-col-feed">
+                        {/* CUADRO DE PUBLICAR */}
+                        <div className="fb-card-white publish-area">
+                            <div className="publish-input-row">
+                                <img src="https://via.placeholder.com/40" className="user-avatar-small" alt="me" />
+                                <input 
+                                    type="text" 
+                                    placeholder={`¿Qué estás pensando, ${userName}?`} 
+                                    value={nuevoPost}
+                                    onChange={(e) => setNuevoPost(e.target.value)}
+                                />
+                            </div>
+                            <hr className="fb-divider" />
+                            <div className="publish-actions-row">
+                                <button onClick={() => postFotoRef.current.click()}><FaRegImage color="#45bd62" /> Foto/video</button>
+                                <button><FaUserFriends color="#1877f2" /> Etiquetar amigos</button>
+                                <button><FaSmile color="#f7b928" /> Sentimiento/actividad</button>
+                                <input type="file" ref={postFotoRef} style={{display: 'none'}} accept="image/*" onChange={(e) => handleImagePreview(e, 'post')} />
+                            </div>
+                            {fotoPost && (
+                                <div className="fb-post-preview">
+                                    <img src={fotoPost} alt="preview" />
+                                    <button onClick={() => setFotoPost(null)}><FaTimes /></button>
                                 </div>
-                                <div className="post-tw-main">
-                                    <div className="post-tw-header">
-                                        <span className="author-tw">{post.autor}</span>
-                                        <span className="user-handle-tw">@{post.autor.toLowerCase().replace(/\s+/g, '')} · 1m</span>
-                                        <FaEllipsisH className="post-opt-tw" />
+                            )}
+                            {(nuevoPost.trim() || fotoPost) && (
+                                <button className="fb-btn-post-submit" onClick={handlePublicar} disabled={loading}>
+                                    {loading ? "Publicando..." : "Publicar"}
+                                </button>
+                            )}
+                        </div>
+
+                        {/* LISTA DE PUBLICACIONES (Imagen 3) */}
+                        {grupoData.posts?.map(post => (
+                            <div key={post._id} className="fb-card-white post-container">
+                                <div className="post-top-header">
+                                    <img src="https://via.placeholder.com/40" className="user-avatar-small" alt="u" />
+                                    <div className="post-user-meta">
+                                        <span className="post-author-name">{post.autor}</span>
+                                        <span className="post-timestamp">Administrador · 22 h · <FaUserFriends /></span>
                                     </div>
-                                    <p className="content-tw">{post.contenido}</p>
-                                    {post.foto && (
-                                        <div className="post-img-container-tw">
-                                            <img src={post.foto} className="img-post-tw" alt="f" />
+                                    <div className="post-options-relative">
+                                        <button className="btn-post-options" onClick={(e) => handleToggleMenu(e, post._id)}><FaEllipsisH /></button>
+                                        {/* DROPDOWN ESTILO IMAGEN 2 */}
+                                        {menuAbiertoId === post._id && (
+                                            <div className="dropdown-fb-style">
+                                                <div className="arrow-up-fb"></div>
+                                                <button className="fb-item"><FaRegFileAlt className="fb-icon" /> Tu contenido</button>
+                                                <button className="fb-item justify"><span><FaShare className="fb-icon" /> Compartir</span><FaChevronRight className="fb-arrow" /></button>
+                                                <button className="fb-item"><FaBell className="fb-icon" /> Administrar notificaciones</button>
+                                                <button className="fb-item"><FaThumbtack className="fb-icon" /> Destacar grupo</button>
+                                                <button className="fb-item"><FaExclamationCircle className="fb-icon" /> Reportar grupo</button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="post-body-text">
+                                    {post.contenido}
+                                </div>
+
+                                {post.foto && (
+                                    <div className="post-image-manga-style">
+                                        <img src={post.foto} className="img-full-post" alt="post" />
+                                        <div className="manga-badge">+{Math.floor(Math.random() * 50)}</div>
+                                    </div>
+                                )}
+
+                                <div className="post-footer-metrics">
+                                    <div className="metrics-likes">
+                                        <div className="icons-likes">
+                                            <FaHeart className="icon-h" />
+                                            <FaThumbsUp className="icon-l" />
                                         </div>
-                                    )}
-                                    <div className="actions-tw-row">
-                                        <button className="action-tw-btn"><FaComment /> <span>{Math.floor(Math.random() * 10)}</span></button>
-                                        <button className="action-tw-btn"><FaShare /> <span>{Math.floor(Math.random() * 5)}</span></button>
-                                        <button 
-                                            className={`action-tw-btn ${likes[post._id] ? 'liked' : ''}`} 
-                                            onClick={() => toggleLike(post._id)}
-                                        >
-                                            <FaHeart /> <span>{likes[post._id] ? 1 : 0}</span>
-                                        </button>
-                                        <button className="action-tw-btn"><FaChartBar /> <span>{Math.floor(Math.random() * 100)}</span></button>
+                                        <span>{post.autor} y 50 personas más</span>
                                     </div>
+                                </div>
+
+                                <div className="post-action-buttons-fb">
+                                    <button onClick={() => toggleLike(post._id)} className={likes[post._id] ? "liked" : ""}>
+                                        <FaThumbsUp /> Me gusta
+                                    </button>
+                                    <button><FaComment /> Comentar</button>
+                                    <button><FaShare /> Compartir</button>
                                 </div>
                             </div>
                         ))}
