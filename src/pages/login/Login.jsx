@@ -56,6 +56,13 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
 
     const handleLogin = async (data) => {
+        // 🔒 SOLO PERMITIR ESTUDIANTE
+    if (data.rol !== "estudiante") {
+        toast.error("Solo los estudiantes pueden iniciar sesión 🚫", {
+            autoClose: 3000
+        });
+        return;
+    }
         const loadingToast = toast.loading("Iniciando sesión...");
 
         try {
