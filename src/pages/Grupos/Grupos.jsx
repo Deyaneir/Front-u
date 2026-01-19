@@ -352,21 +352,21 @@ const Grupos = () => {
                                                 </div>
                                             ))}
                                             
-                                            <form onSubmit={(e) => handleComentar(e, post._id)} className="comment-input-wrapper" style={{ display: 'flex', gap: '8px', padding: '10px 15px' }}>
+                                           <form onSubmit={(e) => handleComentar(e, post._id)} style={{ display: 'flex', gap: '8px', padding: '10px 15px', alignItems: 'center' }}>
     <img src={avatar || "https://via.placeholder.com/32"} className="comment-mini-avatar" alt="yo" />
-    <div className="comment-input-container-with-btn" style={{ flex: 1, display: 'flex', backgroundColor: '#f0f2f5', borderRadius: '20px', padding: '0 12px' }}>
-        <input 
-            placeholder="Escribe un comentario..." 
-            style={{ flex: 1, border: 'none', background: 'transparent', padding: '8px 0', outline: 'none', color: '#000' }}
-            value={comentarioTexto[post._id] || ""}
-            onChange={(e) => setComentarioTexto({...comentarioTexto, [post._id]: e.target.value})}
-        />
-        {/* Botón tipo submit dentro del form */}
-        <button type="submit" style={{ background: 'none', border: 'none', color: '#1877f2', cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-            <FaPaperPlane />
-        </button>
-    </div>
+    
+    <input 
+        placeholder="Escribe un comentario..." 
+        style={{ flex: 1, border: 'none', background: '#f0f2f5', borderRadius: '20px', padding: '8px 12px', outline: 'none', color: '#000' }}
+        value={comentarioTexto[post._id] || ""}
+        onChange={(e) => setComentarioTexto({...comentarioTexto, [post._id]: e.target.value})}
+    />
+
+    <button type="submit" style={{ background: 'none', border: 'none', color: '#1877f2', cursor: 'pointer', fontSize: '18px' }}>
+        <FaPaperPlane />
+    </button>
 </form>
+
 
                                         </div>
                                     )}
