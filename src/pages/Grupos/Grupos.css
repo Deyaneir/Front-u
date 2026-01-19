@@ -407,14 +407,17 @@
 }
 
 .fb-cover-photo {
-    height: 350px;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    max-width: 900px !important;
-    margin: 0 auto !important;
+    width: 100% !important;   /* Ocupa todo el ancho disponible */
+    max-width: 900px;         /* Mantiene el límite de laptop */
+    height: 250px;            /* Reducido de 350px a 250px para que sea más pequeña */
+    margin: 0 auto;
+    background-size: cover;    /* La imagen cubre todo el espacio */
+    background-position: center; /* Centra la foto de fondo */
+    background-repeat: no-repeat;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
+    position: relative;
+    overflow: hidden;         /* Evita que la imagen se salga de las esquinas redondeadas */
 }
 
 .fb-back-btn {
