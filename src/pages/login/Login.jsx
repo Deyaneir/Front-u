@@ -63,43 +63,33 @@ const Login = () => {
                 `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/login`,
                 {
                     correoInstitucional: data.email,
-                    password: data.password,
-                    rol: data.rol
+                    password: data.password
                 }
             );
 
-            const { token, nombre, correoInstitucional } = res.data;
+            console.log("RESPUESTA LOGIN:", res.data);
 
-            // 🔒 Validar token
-            if (!token) {
+            const { token, nombre, correoInstitucional, rol, avatar } = res.data;
+
+            // 🔒 VALIDACIÓN REAL POR ROL (DESDE BACKEND)
+            if (rol !== "estudiante") {
                 toast.update(loadingToast, {
-                    render: "Error de autenticación",
+                    render: `Acceso denegado. Tu rol (${rol}) no tiene permiso 🚫`,
                     type: "error",
                     isLoading: false,
                     autoClose: 3500
                 });
                 return;
             }
-
-            // 🔒 Validación de rol
-            if (data.rol !== "estudiante") {
-                toast.update(loadingToast, {
-                    render: `Acceso denegado. Tu rol (${data.rol}) no tiene permiso 🚫`,
-                    type: "error",
-                    isLoading: false,
-                    autoClose: 3500
-                });
-                return;
-            }
-
-            // 💾 Guardar datos
-            localStorage.setItem("token", token);
-            localStorage.setItem("rol", data.rol);
-            localStorage.setItem("nombre", nombre);
-            localStorage.setItem("correo", correoInstitucional);
 
             setToken(token);
-            setRol(data.rol);
+            setRol(rol);
+
+            localStorage.setItem("token", token);
+            localStorage.setItem("rol", rol);
+            localStorage.setItem("nombre", nombre);
+            localStorage.setItem("correo", correoInstitucional);
+            localStorage.setItem("fotoPerfil", avatar || "");
 
             toast.update(loadingToast, {
                 render: "¡Bienvenido!",
@@ -165,14 +155,14 @@ const Login = () => {
                             {errors.password && <span className="error-text">{errors.password.message}</span>}
                         </div>
 
+                        {/* 🔽 SE DEJA EL SELECT, PERO YA NO CONTROLA EL ACCESO */}
                         <div className="input-group">
-                            <select {...register("rol", { required: "Selecciona un rol" })} className="select-rol">
+                            <select {...register("rol")} className="select-rol">
                                 <option value="">Seleccionar rol...</option>
-                                <option value="administracion">Administración</option>
+                                <option value="administrador">Administración</option>
                                 <option value="estudiante">Estudiante</option>
                                 <option value="moderador">Moderador</option>
                             </select>
-                            {errors.rol && <span className="error-text">{errors.rol.message}</span>}
                         </div>
 
                         <button type="submit" className="login-btn">Iniciar Sesión</button>
