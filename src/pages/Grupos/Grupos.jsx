@@ -34,8 +34,9 @@ const Grupos = () => {
     const [likes, setLikes] = useState({});
     const [guardados, setGuardados] = useState({});
 
-    // --- ESTADO PARA COMENTARIOS NUEVOS ---
+    // --- ESTADOS DE COMENTARIOS (NUEVO) ---
     const [comentarioTexto, setComentarioTexto] = useState({});
+    const [comentariosAbiertos, setComentariosAbiertos] = useState({}); // Controla el despliegue
 
     // --- ESTADOS DE CREACIÓN Y RECORTE ---
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -49,7 +50,15 @@ const Grupos = () => {
     const fileInputRef = useRef(null);
     const postFotoRef = useRef(null);
 
-    // --- 1. CARGAR PERFIL (INCLUYENDO ROL) ---
+    // --- LÓGICA DE DESPLIEGUE ---
+    const toggleComentarios = (postId) => {
+        setComentariosAbiertos(prev => ({
+            ...prev,
+            [postId]: !prev[postId]
+        }));
+    };
+
+    // --- 1. CARGAR PERFIL ---
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
@@ -285,13 +294,7 @@ const Grupos = () => {
                             {fotoPost && (
                                 <div className="fb-post-preview-container" style={{ margin: '10px 15px', position: 'relative', width: 'fit-content' }}>
                                     <img src={fotoPost} alt="preview" style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', display: 'block', border: '1px solid #ddd' }} />
-                                    <button 
-                                        className="fb-remove-preview" 
-                                        onClick={() => setFotoPost(null)}
-                                        style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#f02849', color: 'white', border: 'none', borderRadius: '50%', width: '25px', height: '25px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                    >
-                                        <FaTimes />
-                                    </button>
+                                    <button className="fb-remove-preview" onClick={() => setFotoPost(null)} style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#f02849', color: 'white', border: 'none', borderRadius: '50%', width: '25px', height: '25px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><FaTimes /></button>
                                 </div>
                             )}
 
@@ -304,6 +307,8 @@ const Grupos = () => {
 
                         {grupoData.posts?.map(post => {
                             const esMiPost = post.autorEmail === userEmail || post.autor === userName;
+                            const estaAbierto = comentariosAbiertos[post._id];
+
                             return (
                                 <div key={post._id} className="fb-card-white post-container">
                                     <div className="post-top-header">
@@ -321,35 +326,41 @@ const Grupos = () => {
                                     </div>
                                     <div className="post-body-text" style={{color: '#000', padding: '10px 15px'}}>{post.contenido}</div>
                                     {post.foto && <div className="post-image-main"><img src={post.foto} className="img-full-post" alt="post" /></div>}
+                                    
                                     <div className="post-action-buttons-fb">
                                         <button onClick={() => toggleLike(post._id)} className={likes[post._id] ? "liked" : ""} style={{color: '#65676b'}}><FaThumbsUp /> Me gusta</button>
-                                        <button style={{color: '#65676b'}}><FaComment /> Comentar</button>
+                                        
+                                        {/* BOTÓN COMENTAR: Ahora despliega la sección */}
+                                        <button onClick={() => toggleComentarios(post._id)} style={{color: '#65676b'}}><FaComment /> Comentar</button>
+                                        
                                         <button style={{color: '#65676b'}}><FaShare /> Compartir</button>
                                     </div>
 
-                                    {/* --- SECCIÓN DE COMENTARIOS --- */}
-                                    <div className="fb-comments-section" style={{ padding: '10px 15px', borderTop: '1px solid #eee' }}>
-                                        {post.comentarios?.map((com, index) => (
-                                            <div key={index} style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-                                                <img src={com.autorFoto || "https://via.placeholder.com/32"} alt="avatar" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
-                                                <div style={{ backgroundColor: '#f0f2f5', padding: '8px 12px', borderRadius: '18px', fontSize: '0.9rem' }}>
-                                                    <span style={{ fontWeight: 'bold', display: 'block', color: '#000' }}>{com.autor}</span>
-                                                    <span style={{ color: '#050505' }}>{com.contenido}</span>
+                                    {/* SECCIÓN DE COMENTARIOS: Renderizado condicional */}
+                                    {estaAbierto && (
+                                        <div className="fb-comments-section">
+                                            {post.comentarios?.map((com, index) => (
+                                                <div key={index} className="comment-item">
+                                                    <img src={com.autorFoto || "https://via.placeholder.com/32"} alt="avatar" className="comment-mini-avatar" />
+                                                    <div className="comment-bubble">
+                                                        <span className="comment-author-name">{com.autor}</span>
+                                                        <span className="comment-text">{com.contenido}</span>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                        <form onSubmit={(e) => handleComentar(e, post._id)} style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
-                                            <div className="avatar-circle-wrapper">
-                                                {avatar ? <img src={avatar} className="mini-avatar-fb" style={{width: '32px', height: '32px'}} alt="yo" /> : <FaUserCircle size={32} color="#ccc" />}
-                                            </div>
-                                            <input 
-                                                placeholder="Escribe un comentario..." 
-                                                value={comentarioTexto[post._id] || ""}
-                                                onChange={(e) => setComentarioTexto({...comentarioTexto, [post._id]: e.target.value})}
-                                                style={{ flex: 1, backgroundColor: '#f0f2f5', border: 'none', borderRadius: '20px', padding: '8px 15px', outline: 'none', fontSize: '0.9rem', color: '#000' }}
-                                            />
-                                        </form>
-                                    </div>
+                                            ))}
+                                            <form onSubmit={(e) => handleComentar(e, post._id)} className="comment-input-wrapper">
+                                                <div className="avatar-circle-wrapper">
+                                                    {avatar ? <img src={avatar} className="comment-mini-avatar" alt="yo" /> : <FaUserCircle size={32} color="#ccc" />}
+                                                </div>
+                                                <input 
+                                                    placeholder="Escribe un comentario..." 
+                                                    className="comment-input-field"
+                                                    value={comentarioTexto[post._id] || ""}
+                                                    onChange={(e) => setComentarioTexto({...comentarioTexto, [post._id]: e.target.value})}
+                                                />
+                                            </form>
+                                        </div>
+                                    )}
                                 </div>
                             );
                         })}
@@ -408,28 +419,17 @@ const Grupos = () => {
                                 )}
                                 
                                 <div style={{ position: 'relative' }}>
-                                    <button className="btn-dots-gray" onClick={() => setMenuAbiertoId(menuAbiertoId === grupo._id ? null : grupo._id)}>
-                                        <FaEllipsisH />
-                                    </button>
-                                    
+                                    <button className="btn-dots-gray" onClick={() => setMenuAbiertoId(menuAbiertoId === grupo._id ? null : grupo._id)}><FaEllipsisH /></button>
                                     {menuAbiertoId === grupo._id && (
                                         <div className="dropdown-fb-style" style={{ display: 'block' }}>
                                             {(esCreador || esAdminGlobal) ? (
-                                                <button onClick={() => handleEliminarGrupo(grupo._id)} style={{color: 'red'}}>
-                                                    <FaTrash /> Eliminar Grupo {esAdminGlobal && "(Admin)"}
-                                                </button>
+                                                <button onClick={() => handleEliminarGrupo(grupo._id)} style={{color: 'red'}}><FaTrash /> Eliminar Grupo</button>
                                             ) : (
-                                                <>
-                                                    {esMiembro ? (
-                                                        <button onClick={() => handleAbandonarGrupo(grupo._id)}>
-                                                            <FaSignOutAlt /> Abandonar Grupo
-                                                        </button>
-                                                    ) : (
-                                                        <button onClick={() => handleUnirseGrupo(grupo)}>
-                                                            <FaPlus /> Unirse al grupo
-                                                        </button>
-                                                    )}
-                                                </>
+                                                esMiembro ? (
+                                                    <button onClick={() => handleAbandonarGrupo(grupo._id)}><FaSignOutAlt /> Abandonar Grupo</button>
+                                                ) : (
+                                                    <button onClick={() => handleUnirseGrupo(grupo)}><FaPlus /> Unirse</button>
+                                                )
                                             )}
                                         </div>
                                     )}
