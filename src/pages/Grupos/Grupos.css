@@ -407,8 +407,8 @@
     max-width: 900px !important; 
     width: 95%;
 
-    padding-left: 0 !important;
-    padding-right: 0 !important;
+    padding-left: -1 !important;
+    padding-right: 1 !important;
     
     /* 🔥 Esto lo centra perfectamente en la pantalla 🔥 */
     margin: 0 auto !important; 
