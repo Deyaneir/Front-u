@@ -36,16 +36,17 @@ const Login = () => {
     const handleLogin = async (data) => {
         const loadingToast = toast.loading("Iniciando sesion...");
 
+        // Preparamos los datos: Correo y Pass tal cual, Rol en minusculas
+        const datosParaEnviar = {
+            correoInstitucional: data.email,
+            password: data.password, 
+            rol: data.rol.toLowerCase().trim()
+        };
+
         try {
-            // ENVIAR AL BACKEND: La contraseña se envia EXACTAMENTE como se escribe
-            // Solo el rol se normaliza a minusculas para coincidir con la BDD
             const res = await axios.post(
                 `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/login`,
-                {
-                    correoInstitucional: data.email,
-                    password: data.password, // Se queda igual (case-sensitive)
-                    rol: data.rol.toLowerCase().trim() 
-                }
+                datosParaEnviar
             );
 
             const { token, nombre, correoInstitucional, rol, fotoPerfil } = res.data;
