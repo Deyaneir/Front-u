@@ -517,7 +517,7 @@
     padding: 16px; 
     width: 100%;
     box-sizing: border-box; 
-
+}
 /* ✅ RECUADRO BLANCO MÁS ANCHO QUE ANTES (980px) */
 .fb-card-white {
     background: white;
