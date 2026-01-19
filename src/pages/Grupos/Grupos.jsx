@@ -241,12 +241,21 @@ const Grupos = () => {
                                 </div>
                                 <input style={{color: '#000'}} placeholder={`¿Qué compartes hoy, ${userName}?`} value={nuevoPost} onChange={(e) => setNuevoPost(e.target.value)} />
                             </div>
+                            
+                            {/* --- PREVISUALIZACIÓN DE IMAGEN CORREGIDA --- */}
                             {fotoPost && (
-                                <div className="fb-post-preview-container">
-                                    <img src={fotoPost} alt="preview" className="fb-img-previa" />
-                                    <button className="fb-remove-preview" onClick={() => setFotoPost(null)}><FaTimes /></button>
+                                <div className="fb-post-preview-container" style={{ margin: '10px 15px', position: 'relative', width: 'fit-content' }}>
+                                    <img src={fotoPost} alt="preview" style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', display: 'block', border: '1px solid #ddd' }} />
+                                    <button 
+                                        className="fb-remove-preview" 
+                                        onClick={() => setFotoPost(null)}
+                                        style={{ position: 'absolute', top: '-10px', right: '-10px', background: '#f02849', color: 'white', border: 'none', borderRadius: '50%', width: '25px', height: '25px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                                    >
+                                        <FaTimes />
+                                    </button>
                                 </div>
                             )}
+
                             <div className="publish-footer-fb">
                                 <button onClick={() => postFotoRef.current.click()}><FaRegImage color="#45bd62" /> Foto/video</button>
                                 <button onClick={handlePublicar} disabled={loading} className="btn-send-fb">Publicar</button>
@@ -317,8 +326,6 @@ const Grupos = () => {
                 .map(grupo => {
                     const esCreador = grupo.creadorEmail === userEmail;
                     const esMiembro = grupo.miembrosArray?.includes(userEmail);
-                    
-                    // VALIDACIÓN FLEXIBLE PARA EL ROL
                     const esAdminGlobal = userRole === "administrador" || userRole === "administradores";
 
                     return (
