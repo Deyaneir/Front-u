@@ -699,16 +699,51 @@
     object-fit: cover;
 }
 
-@media (max-width: 920px) {
-    .fb-profile-nav,
-    .fb-card-white,
-    .fb-cover-photo {
-        width: 95% !important;
-        margin: 0 auto;
-    }
-}
 @keyframes fadeIn {
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
 }
 
+/* =========================================================
+   AJUSTES PARA CELULAR (BOTONES UNO DEBAJO DE OTRO)
+   ========================================================= */
+@media (max-width: 920px) {
+    /* 1. Ajuste de contenedores principales */
+    .fb-profile-nav,
+    .fb-card-white,
+    .publish-area,
+    .fb-cover-photo {
+        width: 95% !important;
+        margin: 0 auto !important;
+    }
+
+    /* 2. El cambio clave: Los botones a columna */
+    .fb-header-btns {
+        flex-direction: column; /* 🔥 Esto los pone uno debajo del otro */
+        width: 100%;
+        margin-left: 0;
+        margin-top: 15px;
+        gap: 8px;
+    }
+
+    /* 3. Botones a ancho completo */
+    .btn-fb-blue, 
+    .btn-fb-gray {
+        width: 100%; 
+        justify-content: center;
+        display: flex;
+        padding: 10px;
+    }
+
+    /* 4. Centrar textos y avatar en móvil */
+    .fb-avatar-section {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        margin-top: -60px; /* Ajuste para que el círculo no tape todo */
+    }
+
+    .fb-name-stats {
+        width: 100%;
+    }
+}
