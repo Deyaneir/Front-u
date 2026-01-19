@@ -406,6 +406,9 @@
     /* Reducimos el ancho máximo para que no sea tan largo */
     max-width: 900px !important; 
     width: 95%;
+
+    padding-left: 0 !important;
+    padding-right: 0 !important;
     
     /* 🔥 Esto lo centra perfectamente en la pantalla 🔥 */
     margin: 0 auto !important; 
