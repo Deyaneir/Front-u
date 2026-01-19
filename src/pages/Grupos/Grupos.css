@@ -751,4 +751,21 @@
     .fb-name-stats {
         width: 100%;
     }
+   /* Separar el cuadro de "Qué compartes" del post de abajo */
+    .publish-area {
+        margin-bottom: 20px !important; /* Crea el espacio morado */
+        width: 95% !important;
+    }
+
+    /* Separar cada publicación entre sí */
+    .fb-card-white {
+        margin-bottom: 20px !important; /* Espacio entre posts */
+        width: 95% !important;
+    }
+
+    /* Asegurar que el contenedor padre permita el espacio */
+    .fb-body-grid {
+        gap: 20px !important; /* Fuerza la separación entre hijos */
+        padding: 10px 0;
+    }
 }
