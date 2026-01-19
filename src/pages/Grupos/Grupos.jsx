@@ -215,12 +215,11 @@ const Grupos = () => {
                     </div>
                    <div className="fb-profile-nav">
     <div className="fb-avatar-section">
-        {/* Contenedor del Avatar de Perfil del Grupo */}
         <div className="fb-avatar-wrapper" style={{ 
     width: '168px', 
     height: '168px', 
-    minWidth: '168px', // Agrega esto para que no se aplaste
-    minHeight: '168px', // Agrega esto
+    minWidth: '168px',
+    minHeight: '168px',
     borderRadius: '50%', 
     border: '4px solid white', 
     overflow: 'hidden', 
@@ -229,7 +228,7 @@ const Grupos = () => {
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: 0,
-    position: 'relative' // Por si luego quieres poner el icono de la cámara
+    position: 'relative'
 }}>
     <img 
         src={grupoData.imagen || "https://via.placeholder.com/150"} 
@@ -237,7 +236,7 @@ const Grupos = () => {
         style={{ 
             width: '100%', 
             height: '100%', 
-            objectFit: 'cover' // Esto hace que la imagen se recorte y no se estire
+            objectFit: 'cover'
         }} 
     />
 </div>
@@ -285,7 +284,6 @@ const Grupos = () => {
                         </div>
 
                         {grupoData.posts?.map(post => {
-                            // CORRECCIÓN VISUAL: Forzamos tu identidad si el post es tuyo
                             const esMiPost = post.autorEmail === userEmail || post.autor === userName || post.autor?.includes("Damaris");
 
                             return (
@@ -354,34 +352,57 @@ const Grupos = () => {
                     const match = g.nombre?.toLowerCase().includes(filtro.toLowerCase());
                     return pestana === "mis-grupos" ? (match && g.miembrosArray?.includes(userEmail)) : match;
                 })
-                .map(grupo => (
-                    <div key={grupo._id} className="grupo-card-row">
-                        <div className="grupo-card-top-content" onClick={() => entrarAGrupo(grupo)}>
-                            <img src={grupo.imagen || "https://via.placeholder.com/150"} className="grupo-img-mini-square" alt={grupo.nombre} />
-                            <div className="grupo-textos-info">
-                                <h3 className="grupo-nombre-bold" style={{color: '#000'}}>{grupo.nombre}</h3>
-                                <p style={{color: '#65676b'}}>{grupo.miembrosArray?.length || 1} miembros</p>
+                .map(grupo => {
+                    const esCreador = grupo.creadorEmail === userEmail;
+                    const esMiembro = grupo.miembrosArray?.includes(userEmail);
+
+                    return (
+                        <div key={grupo._id} className="grupo-card-row">
+                            <div className="grupo-card-top-content" onClick={() => entrarAGrupo(grupo)}>
+                                <img src={grupo.imagen || "https://via.placeholder.com/150"} className="grupo-img-mini-square" alt={grupo.nombre} />
+                                <div className="grupo-textos-info">
+                                    <h3 className="grupo-nombre-bold" style={{color: '#000'}}>{grupo.nombre}</h3>
+                                    <p style={{color: '#65676b'}}>{grupo.miembrosArray?.length || 1} miembros</p>
+                                </div>
                             </div>
-                        </div>
-                        <div className="grupo-card-actions-row">
-                            {grupo.miembrosArray?.includes(userEmail) ? (
-                                <button className="btn-ver-grupo-vibe-blue" onClick={() => entrarAGrupo(grupo)}>Ver</button>
-                            ) : (
-                                <button className="btn-ver-grupo-vibe-blue" onClick={() => handleUnirseGrupo(grupo)}>Unirse</button>
-                            )}
-                            <button className="btn-dots-gray" onClick={() => setMenuAbiertoId(menuAbiertoId === grupo._id ? null : grupo._id)}><FaEllipsisH /></button>
-                            {menuAbiertoId === grupo._id && (
-                                <div className="dropdown-fb-style">
-                                    {grupo.creadorEmail === userEmail ? (
-                                        <button onClick={() => handleEliminarGrupo(grupo._id)}><FaTrash color="red" /> Eliminar</button>
-                                    ) : (
-                                        <button onClick={() => handleAbandonarGrupo(grupo._id)}><FaSignOutAlt /> Salir</button>
+                            <div className="grupo-card-actions-row">
+                                {!esMiembro ? (
+                                    <button className="btn-ver-grupo-vibe-blue" onClick={() => handleUnirseGrupo(grupo)}>Unirse</button>
+                                ) : (
+                                    <button className="btn-ver-grupo-vibe-blue" onClick={() => entrarAGrupo(grupo)}>Ver</button>
+                                )}
+                                
+                                <div style={{ position: 'relative' }}>
+                                    <button className="btn-dots-gray" onClick={() => setMenuAbiertoId(menuAbiertoId === grupo._id ? null : grupo._id)}>
+                                        <FaEllipsisH />
+                                    </button>
+                                    
+                                    {menuAbiertoId === grupo._id && (
+                                        <div className="dropdown-fb-style" style={{ display: 'block' }}>
+                                            {esCreador ? (
+                                                <button onClick={() => handleEliminarGrupo(grupo._id)} style={{color: 'red'}}>
+                                                    <FaTrash /> Eliminar Grupo
+                                                </button>
+                                            ) : (
+                                                <>
+                                                    {esMiembro ? (
+                                                        <button onClick={() => handleAbandonarGrupo(grupo._id)}>
+                                                            <FaSignOutAlt /> Abandonar Grupo
+                                                        </button>
+                                                    ) : (
+                                                        <button onClick={() => handleUnirseGrupo(grupo)}>
+                                                            <FaPlus /> Unirse al grupo
+                                                        </button>
+                                                    )}
+                                                </>
+                                            )}
+                                        </div>
                                     )}
                                 </div>
-                            )}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             {/* --- MODAL CREAR --- */}
