@@ -6,7 +6,7 @@
     max-width: 1200px;
     margin: 0 auto;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f0f2f5; 
+    background-color: #E1BEE7; 
     min-height: 100vh;
 }
 
@@ -397,7 +397,7 @@
    ========================================================= */
 
 .fb-layout {
-    background-color: #f0f2f5;
+    background-color: #E1BEE7;
     min-height: 100vh;
 }
 
@@ -610,7 +610,6 @@
 .fb-header-container, 
 .publish-area, 
 .fb-card-white {
-    background-color: #f0f2f5 !important;
     width: 100% !important;
     max-width: 820px !important; /* Forzamos el mismo ancho para ambos */
     margin-left: auto !important;
@@ -737,23 +736,12 @@
     object-fit: cover;
 }
 
-/* =========================================================
-ELIMINAR COLOR VINO Y ESPACIOS BLANCOS ARRIBA
-   ========================================================= */
-.grupos-page, 
-.fb-layout, 
+body-grupos, 
 .fb-body-grid,
-.main-wrapper {
-    /* Quitamos el color vino lateral eliminando bordes y rellenos */
-    border-left: none !important; 
-    padding-left: 0 !important;
-    padding-top: 0 !important; /* Elimina el espacio blanco de arriba */
-    margin: 0 !important;
-    
-    /* Aplicamos el lila del Dashboard */
-    background-color: #D1C4E9 !important; 
-    background-image: none !important;
-    min-height: 100vh;
+.main-wrapper { 
+    background-color: #f0f2f5 !important; /* Gris claro profesional */
+    background-image: none !important;    /* Borra cualquier degradado */
+    padding-right: 0 !important;          /* Evita que aparezca la línea lateral */
 }
 
 @keyframes fadeIn {
