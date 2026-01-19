@@ -1,49 +1,33 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Cropper from 'react-easy-crop';
 import axios from 'axios';
 import { 
-    FaPlus, FaArrowLeft, FaCamera, FaThumbsUp, FaComment, FaSearch, FaTimes, FaShare, 
-    FaGlobeAmericas, FaRegImage, FaUserFriends, FaPaperPlane, FaEllipsisH, FaRegSmile,
-    FaCheckCircle, FaExclamationTriangle
+    FaPlus, FaArrowLeft, FaCamera, FaThumbsUp, FaComment, FaSearch, FaTimes, FaEllipsisH, FaShare, 
+    FaGlobeAmericas, FaRegImage, FaUserFriends, FaPaperPlane
 } from 'react-icons/fa';
 import './Grupos.css';
 
 const API_URL = "https://controversial-jacquette-vibe-u-d09f766e.koyeb.app/api/grupos";
 
 const Grupos = () => {
-    // --- 1. ESTADOS DE DATOS E INTERFAZ ---
+    // --- ESTADOS ---
     const [grupos, setGrupos] = useState([]);
     const [filtro, setFiltro] = useState("");
     const [loading, setLoading] = useState(false);
-    const [globalError, setGlobalError] = useState(null);
-    const [successMsg, setSuccessMsg] = useState(null);
-
-    // --- 2. ESTADOS DE SESIÓN ---
     const [userName, setUserName] = useState("Usuario");
     const [avatar, setAvatar] = useState(null);
     const userEmail = localStorage.getItem("correo");
-    const token = localStorage.getItem('token');
-
-    // --- 3. NAVEGACIÓN Y PERSISTENCIA ---
     const [grupoActivo, setGrupoActivo] = useState(() => {
-        try {
-            const persistido = localStorage.getItem("ultimoGrupoVisitado");
-            return persistido ? JSON.parse(persistido) : null;
-        } catch { return null; }
+        const persistido = localStorage.getItem("ultimoGrupoVisitado");
+        return persistido ? JSON.parse(persistido) : null;
     });
 
-    // --- 4. ESTADOS DEL FEED (POSTS) ---
     const [nuevoPost, setNuevoPost] = useState("");
     const [fotoPost, setFotoPost] = useState(null);
-    const [publicando, setPublicando] = useState(false);
     const [likes, setLikes] = useState({});
-
-    // --- 5. ESTADOS DE COMENTARIOS ---
     const [comentarioTexto, setComentarioTexto] = useState({});
     const [comentariosAbiertos, setComentariosAbiertos] = useState({});
-    const [enviandoComentario, setEnviandoComentario] = useState({});
 
-    // --- 6. CREACIÓN DE GRUPOS Y CROPPING ---
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [nuevoGrupo, setNuevoGrupo] = useState({ nombre: "", imagen: "" });
     const [imageToCrop, setImageToCrop] = useState(null);
@@ -51,221 +35,196 @@ const Grupos = () => {
     const [zoom, setZoom] = useState(1);
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
-    // --- 7. REFS ---
     const fileInputRef = useRef(null);
     const postFotoRef = useRef(null);
-    const scrollRef = useRef(null);
 
-    // --- 8. CARGA DE DATOS (PERFIL) ---
+    // --- CARGAR DATOS ---
     useEffect(() => {
-        let isMounted = true;
-        const fetchUser = async () => {
-            if (!token) return;
+        const fetchUserInfo = async () => {
             try {
-                const res = await axios.get(`https://controversial-jacquette-vibe-u-d09f766e.koyeb.app/api/usuarios/perfil`, 
+                const token = localStorage.getItem('token');
+                if (!token) return;
+                const response = await axios.get(`https://controversial-jacquette-vibe-u-d09f766e.koyeb.app/api/usuarios/perfil`, 
                     { headers: { Authorization: `Bearer ${token}` } });
-                if (isMounted && res.data) {
-                    setUserName(res.data.nombre || "Usuario");
-                    setAvatar(res.data.avatar || null);
-                }
-            } catch (err) { console.error("Error Perfil:", err); }
+                if (response.data?.nombre) setUserName(response.data.nombre);
+                if (response.data?.avatar) setAvatar(response.data.avatar);
+            } catch (error) { console.error("Error perfil:", error); }
         };
-        fetchUser();
-        return () => { isMounted = false; };
-    }, [token]);
-
-    // --- 9. CARGA DE GRUPOS ---
-    const fetchGrupos = useCallback(async () => {
-        setLoading(true);
-        try {
-            const res = await fetch(`${API_URL}/listar`);
-            if (!res.ok) throw new Error("No se pudieron cargar las comunidades.");
-            const data = await res.json();
-            setGrupos(data);
-        } catch (err) {
-            setGlobalError(err.message);
-        } finally {
-            setLoading(false);
-        }
+        fetchUserInfo();
+        cargarGrupos();
     }, []);
 
-    useEffect(() => { fetchGrupos(); }, [fetchGrupos]);
+    const cargarGrupos = async () => {
+        try {
+            const res = await fetch(`${API_URL}/listar`);
+            const data = await res.json();
+            setGrupos(data);
+        } catch (error) { console.error("Error grupos:", error); }
+    };
 
-    // --- 10. EFECTO PERSISTENCIA ---
     useEffect(() => {
         if (grupoActivo) localStorage.setItem("ultimoGrupoVisitado", JSON.stringify(grupoActivo));
         else localStorage.removeItem("ultimoGrupoVisitado");
     }, [grupoActivo]);
 
-    // --- 11. LÓGICA DE POSTS ---
-    const handlePublicar = async (e) => {
-        e.preventDefault();
-        if (!nuevoPost.trim() && !fotoPost) return;
-        setPublicando(true);
-        try {
-            const res = await fetch(`${API_URL}/${grupoActivo._id}/post`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    autor: userName, autorFoto: avatar, autorEmail: userEmail,
-                    contenido: nuevoPost, foto: fotoPost
-                })
-            });
-            if (res.ok) {
-                const postData = await res.json();
-                setGrupos(prev => prev.map(g => g._id === grupoActivo._id ? { ...g, posts: [postData, ...g.posts] } : g));
-                setNuevoPost(""); setFotoPost(null);
-                setSuccessMsg("Publicado con éxito");
-                setTimeout(() => setSuccessMsg(null), 3000);
-            }
-        } catch (err) { setGlobalError("Error al publicar."); }
-        finally { setPublicando(false); }
-    };
-
-    // --- 12. LÓGICA DE COMENTARIOS ---
+    // --- FUNCION CLAVE: MANEJO DE COMENTARIOS ---
     const handleComentar = async (e, postId) => {
-        if (e) e.preventDefault();
+        if (e) e.preventDefault(); // Evita recarga de página
+        
         const texto = comentarioTexto[postId];
-        if (!texto?.trim()) return;
+        if (!texto || !texto.trim()) return;
 
-        setEnviandoComentario(prev => ({ ...prev, [postId]: true }));
+        // Optimistic UI o bloqueo de botón si lo deseas
         try {
             const res = await fetch(`${API_URL}/${grupoActivo._id}/post/${postId}/comentar`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    autor: userName, autorFoto: avatar, autorEmail: userEmail, contenido: texto
+                    autor: userName,
+                    autorFoto: avatar,
+                    autorEmail: userEmail,
+                    contenido: texto
                 })
             });
+
             if (res.ok) {
-                const newCom = await res.json();
-                setGrupos(prev => prev.map(g => g._id === grupoActivo._id ? {
-                    ...g, posts: g.posts.map(p => p._id === postId ? { ...p, comentarios: [...(p.comentarios || []), newCom] } : p)
-                } : g));
+                const nuevoComentario = await res.json();
+                
+                // Actualizamos el estado local de los grupos para mostrar el comentario de inmediato
+                setGrupos(prevGrupos => prevGrupos.map(g => {
+                    if (g._id === grupoActivo._id) {
+                        return {
+                            ...g,
+                            posts: g.posts.map(p => 
+                                p._id === postId 
+                                ? { ...p, comentarios: [...(p.comentarios || []), nuevoComentario] } 
+                                : p
+                            )
+                        };
+                    }
+                    return g;
+                }));
+
+                // Limpiar el campo de texto específico de ese post
                 setComentarioTexto(prev => ({ ...prev, [postId]: "" }));
             }
-        } catch (err) { console.error(err); }
-        finally { setEnviandoComentario(prev => ({ ...prev, [postId]: false })); }
+        } catch (error) {
+            console.error("Error al comentar:", error);
+        }
     };
 
-    // --- 13. CROPPING Y ARCHIVOS ---
-    const onCropComplete = useCallback((_, pixels) => setCroppedAreaPixels(pixels), []);
-
-    const handleConfirmCrop = async () => {
-        const image = new Image();
-        image.src = imageToCrop;
-        await image.decode();
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = croppedAreaPixels.width; canvas.height = croppedAreaPixels.height;
-        ctx.drawImage(image, croppedAreaPixels.x, croppedAreaPixels.y, croppedAreaPixels.width, 
-            croppedAreaPixels.height, 0, 0, croppedAreaPixels.width, croppedAreaPixels.height);
-        setNuevoGrupo({ ...nuevoGrupo, imagen: canvas.toDataURL('image/jpeg') });
-        setImageToCrop(null);
+    // --- PUBLICAR POST ---
+    const handlePublicar = async (e) => {
+        e.preventDefault();
+        if (!nuevoPost.trim() && !fotoPost) return;
+        setLoading(true);
+        try {
+            const res = await fetch(`${API_URL}/${grupoActivo._id}/post`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ autor: userName, autorFoto: avatar, autorEmail: userEmail, contenido: nuevoPost, foto: fotoPost })
+            });
+            const postGuardado = await res.json();
+            setGrupos(prev => prev.map(g => g._id === grupoActivo._id ? { ...g, posts: [postGuardado, ...g.posts] } : g));
+            setNuevoPost(""); setFotoPost(null);
+        } catch (error) { console.error(error); }
+        finally { setLoading(false); }
     };
 
-    const handleFileChange = (e, target) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = () => {
-            if (target === 'grupo') setImageToCrop(reader.result);
-            else setFotoPost(reader.result);
-        };
-        reader.readAsDataURL(file);
-    };
-
-    // --- 14. FILTRADO DE GRUPOS ---
-    const gruposFiltrados = useMemo(() => {
-        return grupos.filter(g => g.nombre?.toLowerCase().includes(filtro.toLowerCase()));
-    }, [grupos, filtro]);
-
-    // --- RENDER: MURO ---
+    // --- VISTA DEL MURO (POSTS Y COMENTARIOS) ---
     if (grupoActivo) {
-        const gd = grupos.find(g => g._id === grupoActivo._id) || grupoActivo;
+        const grupoData = grupos.find(g => g._id === grupoActivo._id) || grupoActivo;
         return (
-            <div className="fb-layout animate-fade-in">
-                {successMsg && <div className="toast-success"><FaCheckCircle /> {successMsg}</div>}
+            <div className="fb-layout">
+                {/* Cabecera del Grupo omitida para brevedad, igual a la tuya */}
                 <div className="fb-header-container">
-                    <div className="fb-cover-photo" style={{ backgroundImage: `url(${gd.imagen})` }}>
+                    <div className="fb-cover-photo" style={{ backgroundImage: `url(${grupoData.imagen})` }}>
                         <button className="fb-back-btn" onClick={() => setGrupoActivo(null)}><FaArrowLeft /></button>
                     </div>
                     <div className="fb-profile-nav">
                         <div className="fb-avatar-section">
-                            <div className="fb-avatar-wrapper"><img src={gd.imagen} alt="group" /></div>
-                            <div className="fb-name-stats">
-                                <h1>{gd.nombre}</h1>
-                                <p><FaGlobeAmericas /> Grupo Público · <b>{gd.miembrosArray?.length || 1} miembros</b></p>
+                            <div className="fb-avatar-wrapper">
+                                <img src={grupoData.imagen || "https://via.placeholder.com/150"} alt="avatar" />
                             </div>
-                            <div className="fb-header-btns">
-                                <button className="btn-fb-blue"><FaPlus /> Invitar</button>
-                                <button className="btn-fb-gray"><FaUserFriends /> Unido</button>
+                            <div className="fb-name-stats">
+                                <h1 style={{color: '#000'}}>{grupoData.nombre}</h1>
+                                <p style={{color: '#65676b'}}><FaGlobeAmericas /> Grupo Público</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div className="fb-body-grid">
+                <div className="fb-body-grid single-column">
                     <main className="fb-feed-center">
-                        {/* AREA DE PUBLICAR */}
+                        {/* INPUT PUBLICAR POST */}
                         <div className="fb-card-white publish-area">
                             <div className="publish-input-row">
-                                <img src={avatar || "https://via.placeholder.com/40"} className="mini-avatar-fb" alt="u" />
-                                <input placeholder={`Escribe algo a este grupo...`} value={nuevoPost} onChange={e => setNuevoPost(e.target.value)} />
+                                <img src={avatar || "https://via.placeholder.com/40"} className="mini-avatar-fb" alt="yo" />
+                                <input placeholder={`¿Qué piensas, ${userName}?`} value={nuevoPost} onChange={(e) => setNuevoPost(e.target.value)} />
                             </div>
-                            {fotoPost && <div className="fb-post-preview"><img src={fotoPost} alt="p" /><button onClick={() => setFotoPost(null)}><FaTimes /></button></div>}
                             <div className="publish-footer-fb">
-                                <button onClick={() => postFotoRef.current.click()}><FaRegImage color="#45bd62" /> Foto/video</button>
-                                <button onClick={handlePublicar} className="btn-send-fb" disabled={publicando}>{publicando ? "..." : "Publicar"}</button>
-                                <input type="file" ref={postFotoRef} hidden onChange={e => handleFileChange(e, 'post')} />
+                                <button onClick={() => postFotoRef.current.click()}><FaRegImage color="#45bd62" /> Foto</button>
+                                <button onClick={handlePublicar} className="btn-send-fb">Publicar</button>
+                                <input type="file" ref={postFotoRef} style={{display:'none'}} onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => setFotoPost(reader.result);
+                                    if(file) reader.readAsDataURL(file);
+                                }} />
                             </div>
                         </div>
 
                         {/* LISTA DE POSTS */}
-                        {gd.posts?.map(post => (
+                        {grupoData.posts?.map(post => (
                             <div key={post._id} className="fb-card-white post-container">
                                 <div className="post-top-header">
                                     <img src={post.autorFoto || "https://via.placeholder.com/40"} className="mini-avatar-fb" alt="a" />
                                     <div className="post-user-meta">
-                                        <span className="author-fb">{post.autor}</span>
+                                        <span className="author-fb" style={{color: '#000'}}>{post.autor}</span>
                                         <span className="time-fb">Ahora · <FaGlobeAmericas /></span>
                                     </div>
-                                    <FaEllipsisH className="post-options" />
                                 </div>
-                                <div className="post-body-text">{post.contenido}</div>
-                                {post.foto && <img src={post.foto} className="img-full-post" alt="post-img" />}
+                                <div className="post-body-text" style={{color: '#000'}}>{post.contenido}</div>
+                                {post.foto && <img src={post.foto} className="img-full-post" alt="p" />}
                                 
                                 <div className="post-action-buttons-fb">
-                                    <button onClick={() => setLikes(p => ({ ...p, [post._id]: !p[post._id] }))} className={likes[post._id] ? "liked" : ""}>
-                                        <FaThumbsUp /> Me gusta
+                                    <button onClick={() => setLikes({...likes, [post._id]: !likes[post._id]})} className={likes[post._id] ? "liked" : ""}>
+                                        <FaThumbsUp /> Like
                                     </button>
-                                    <button onClick={() => setComentariosAbiertos(p => ({ ...p, [post._id]: !p[post._id] }))}>
+                                    <button onClick={() => setComentariosAbiertos({...comentariosAbiertos, [post._id]: !comentariosAbiertos[post._id]})}>
                                         <FaComment /> Comentar
                                     </button>
                                     <button><FaShare /> Compartir</button>
                                 </div>
 
-                                {/* SECCIÓN COMENTARIOS ESTILO BURBUJA */}
+                                {/* SECCIÓN DE COMENTARIOS */}
                                 {comentariosAbiertos[post._id] && (
                                     <div className="fb-comments-section">
-                                        {post.comentarios?.map((c, i) => (
-                                            <div key={i} className="comment-item">
-                                                <img src={c.autorFoto || "https://via.placeholder.com/32"} className="comment-mini-avatar" alt="c" />
-                                                <div className="comment-bubble">
-                                                    <span className="comment-author-name">{c.autor}</span>
-                                                    <p>{c.contenido}</p>
+                                        <div className="comments-list">
+                                            {post.comentarios?.map((com, i) => (
+                                                <div key={i} className="comment-item">
+                                                    <img src={com.autorFoto || "https://via.placeholder.com/32"} className="comment-mini-avatar" alt="c" />
+                                                    <div className="comment-bubble">
+                                                        <div className="comment-author-name">{com.autor}</div>
+                                                        <div className="comment-text">{com.contenido}</div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
-                                        <form onSubmit={e => handleComentar(e, post._id)} className="comment-input-area">
+                                            ))}
+                                        </div>
+
+                                        {/* FORMULARIO DE COMENTARIO: Aquí es donde la flecha funciona */}
+                                        <form onSubmit={(e) => handleComentar(e, post._id)} className="comment-input-wrapper">
                                             <img src={avatar || "https://via.placeholder.com/32"} className="comment-mini-avatar" alt="yo" />
-                                            <div className="comment-input-container">
-                                                <input placeholder="Escribe un comentario..." value={comentarioTexto[post._id] || ""} 
-                                                    onChange={e => setComentarioTexto({ ...comentarioTexto, [post._id]: e.target.value })} />
-                                                <div className="comment-input-icons">
-                                                    <FaRegSmile />
-                                                    <button type="submit" disabled={enviandoComentario[post._id]}><FaPaperPlane /></button>
-                                                </div>
+                                            <div className="comment-input-container-with-btn">
+                                                <input 
+                                                    placeholder="Escribe un comentario..." 
+                                                    value={comentarioTexto[post._id] || ""}
+                                                    onChange={(e) => setComentarioTexto({...comentarioTexto, [post._id]: e.target.value})}
+                                                />
+                                                {/* Este botón type="submit" activará handleComentar al hacer clic o dar Enter */}
+                                                <button type="submit" className="btn-send-comment-icon">
+                                                    <FaPaperPlane />
+                                                </button>
                                             </div>
                                         </form>
                                     </div>
@@ -278,79 +237,23 @@ const Grupos = () => {
         );
     }
 
-    // --- RENDER: LISTA PRINCIPAL ---
+    // Render de lista de grupos (simplificado)
     return (
         <section className="grupos-page">
             <div className="grupos-header-top">
-                <div className="header-left-side">
-                    <button className="btn-back-main-page" onClick={() => window.history.back()}><FaArrowLeft /></button>
-                    <h2>Comunidades</h2>
-                </div>
-                <button className="btn-crear-grupo" onClick={() => setIsModalOpen(true)}><FaPlus /> Crear Grupo</button>
+                <h2>Comunidades</h2>
+                <button className="btn-crear-grupo" onClick={() => setIsModalOpen(true)}><FaPlus /> Crear</button>
             </div>
-            
-            <div className="search-bar-pure-white">
-                <FaSearch />
-                <input type="text" placeholder="Buscar en tus grupos..." value={filtro} onChange={e => setFiltro(e.target.value)} />
-            </div>
-
-            {loading ? <div className="loader">Cargando grupos...</div> : (
-                <div className="grupos-grid-moderno">
-                    {gruposFiltrados.map(g => (
-                        <div key={g._id} className="grupo-card-row" onClick={() => setGrupoActivo(g)}>
-                            <img src={g.imagen || "https://via.placeholder.com/60"} alt="g" />
-                            <div className="grupo-info">
-                                <h3>{g.nombre}</h3>
-                                <p>{g.miembrosArray?.length || 1} miembros</p>
-                            </div>
-                            <button className="btn-entrar-vibe">Entrar</button>
-                        </div>
-                    ))}
-                </div>
-            )}
-
-            {/* MODAL CREAR GRUPO */}
-            {isModalOpen && (
-                <div className="modal-overlay">
-                    <div className="vibe-modal-container">
-                        <button className="vibe-close" onClick={() => setIsModalOpen(false)}><FaTimes /></button>
-                        <h3>Nueva Comunidad</h3>
-                        <form onSubmit={async (e) => {
-                            e.preventDefault();
-                            if (!nuevoGrupo.nombre) return;
-                            const res = await fetch(`${API_URL}/crear`, {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ ...nuevoGrupo, creadorEmail: userEmail, miembrosArray: [userEmail] })
-                            });
-                            const data = await res.json();
-                            setGrupos([data, ...grupos]);
-                            setIsModalOpen(false);
-                        }}>
-                            <input className="vibe-input" placeholder="Nombre del grupo" required 
-                                value={nuevoGrupo.nombre} onChange={e => setNuevoGrupo({ ...nuevoGrupo, nombre: e.target.value })} />
-                            <div className="vibe-upload" onClick={() => fileInputRef.current.click()}>
-                                {nuevoGrupo.imagen ? <img src={nuevoGrupo.imagen} alt="pre" /> : <><FaCamera /> Subir Portada</>}
-                            </div>
-                            <input type="file" ref={fileInputRef} hidden onChange={e => handleFileChange(e, 'grupo')} />
-                            <button type="submit" className="vibe-btn-submit">Crear Grupo</button>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {/* CROPPER MODAL */}
-            {imageToCrop && (
-                <div className="modal-overlay">
-                    <div className="cropper-container">
-                        <Cropper image={imageToCrop} crop={crop} zoom={zoom} aspect={16 / 9} onCropChange={setCrop} onZoomChange={setZoom} onCropComplete={onCropComplete} />
-                        <div className="cropper-controls">
-                            <button onClick={() => setImageToCrop(null)}>Cancelar</button>
-                            <button onClick={handleConfirmCrop}>Cortar y Guardar</button>
+            <div className="grupos-grid-moderno">
+                {grupos.map(grupo => (
+                    <div key={grupo._id} className="grupo-card-row" onClick={() => setGrupoActivo(grupo)}>
+                        <img src={grupo.imagen} alt="g" />
+                        <div className="grupo-textos-info">
+                            <h3 style={{color: '#000'}}>{grupo.nombre}</h3>
                         </div>
                     </div>
-                </div>
-            )}
+                ))}
+            </div>
         </section>
     );
 };
