@@ -403,16 +403,17 @@
 
 .fb-header-container {
     background: white;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    /* Reducimos el ancho máximo para que no sea tan largo */
+    max-width: 900px !important; 
+    width: 95%;
     
-    /* 🔥 REDUCCIÓN DE ANCHO 🔥 */
-    width: 95%;            /* En pantallas medianas deja un pequeño margen */
-    max-width: 900px;      /* 👈 Ajusta este número: menor número = más estrecho */
+    /* 🔥 Esto lo centra perfectamente en la pantalla 🔥 */
+    margin: 0 auto !important; 
     
-    margin: 0 auto;        /* Esto lo mantiene siempre centrado */
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
-    overflow: hidden;      /* Para que la foto de portada no se salga de los bordes */
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    overflow: hidden;
 }
 
 .fb-cover-photo {
