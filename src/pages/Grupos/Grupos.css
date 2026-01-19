@@ -854,6 +854,47 @@
         transform: translateY(0);
     }
 }
+
+/* Contenedor que agrupa input + botón */
+.comment-input-container-with-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background-color: #f0f2f5;
+    border-radius: 20px;
+    padding-right: 8px; /* Espacio para el icono a la derecha */
+}
+
+/* Ajuste del input para que no tenga borde y use el fondo del padre */
+.comment-input-field {
+    flex: 1;
+    background: transparent !important; /* Usamos el fondo del contenedor */
+    border: none !important;
+    padding: 9px 12px !important;
+    outline: none !important;
+}
+
+/* Botón de enviar (flecha) */
+.btn-send-comment-icon {
+    background: none;
+    border: none;
+    color: #1877f2; /* Azul Facebook */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    transition: transform 0.2s ease;
+}
+
+.btn-send-comment-icon:disabled {
+    color: #bcc0c4;
+    cursor: default;
+}
+
+.btn-send-comment-icon:hover:not(:disabled) {
+    transform: scale(1.1);
+}
 /*-------------------------------------------*/
 
 .fb-body-grid, 
