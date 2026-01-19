@@ -34,6 +34,9 @@ const Grupos = () => {
     const [likes, setLikes] = useState({});
     const [guardados, setGuardados] = useState({});
 
+    // --- ESTADO PARA COMENTARIOS NUEVOS ---
+    const [comentarioTexto, setComentarioTexto] = useState({});
+
     // --- ESTADOS DE CREACIÓN Y RECORTE ---
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [nuevoGrupo, setNuevoGrupo] = useState({ nombre: "", imagen: "" });
@@ -164,7 +167,7 @@ const Grupos = () => {
         finally { setLoading(false); }
     };
 
-    // --- 6. PUBLICACIONES ---
+    // --- 6. PUBLICACIONES Y COMENTARIOS ---
     const handlePublicar = async (e) => {
         e.preventDefault();
         if (!nuevoPost.trim() && !fotoPost) return;
@@ -187,6 +190,43 @@ const Grupos = () => {
             setFotoPost(null);
         } catch (error) { console.error(error); }
         finally { setLoading(false); }
+    };
+
+    const handleComentar = async (e, postId) => {
+        e.preventDefault();
+        const texto = comentarioTexto[postId];
+        if (!texto?.trim()) return;
+
+        try {
+            const res = await fetch(`${API_URL}/${grupoActivo._id}/post/${postId}/comentar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    autor: userName,
+                    autorFoto: avatar,
+                    autorEmail: userEmail,
+                    contenido: texto
+                })
+            });
+
+            if (res.ok) {
+                const nuevoComentario = await res.json();
+                setGrupos(prev => prev.map(g => {
+                    if (g._id === grupoActivo._id) {
+                        return {
+                            ...g,
+                            posts: g.posts.map(p => 
+                                p._id === postId ? { ...p, comentarios: [...(p.comentarios || []), nuevoComentario] } : p
+                            )
+                        };
+                    }
+                    return g;
+                }));
+                setComentarioTexto(prev => ({ ...prev, [postId]: "" }));
+            }
+        } catch (error) {
+            console.error("Error al comentar:", error);
+        }
     };
 
     const handleImagePreview = (e, destino) => {
@@ -242,7 +282,6 @@ const Grupos = () => {
                                 <input style={{color: '#000'}} placeholder={`¿Qué compartes hoy, ${userName}?`} value={nuevoPost} onChange={(e) => setNuevoPost(e.target.value)} />
                             </div>
                             
-                            {/* --- PREVISUALIZACIÓN DE IMAGEN CORREGIDA --- */}
                             {fotoPost && (
                                 <div className="fb-post-preview-container" style={{ margin: '10px 15px', position: 'relative', width: 'fit-content' }}>
                                     <img src={fotoPost} alt="preview" style={{ maxWidth: '150px', maxHeight: '150px', borderRadius: '8px', display: 'block', border: '1px solid #ddd' }} />
@@ -286,6 +325,30 @@ const Grupos = () => {
                                         <button onClick={() => toggleLike(post._id)} className={likes[post._id] ? "liked" : ""} style={{color: '#65676b'}}><FaThumbsUp /> Me gusta</button>
                                         <button style={{color: '#65676b'}}><FaComment /> Comentar</button>
                                         <button style={{color: '#65676b'}}><FaShare /> Compartir</button>
+                                    </div>
+
+                                    {/* --- SECCIÓN DE COMENTARIOS --- */}
+                                    <div className="fb-comments-section" style={{ padding: '10px 15px', borderTop: '1px solid #eee' }}>
+                                        {post.comentarios?.map((com, index) => (
+                                            <div key={index} style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                                                <img src={com.autorFoto || "https://via.placeholder.com/32"} alt="avatar" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+                                                <div style={{ backgroundColor: '#f0f2f5', padding: '8px 12px', borderRadius: '18px', fontSize: '0.9rem' }}>
+                                                    <span style={{ fontWeight: 'bold', display: 'block', color: '#000' }}>{com.autor}</span>
+                                                    <span style={{ color: '#050505' }}>{com.contenido}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <form onSubmit={(e) => handleComentar(e, post._id)} style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
+                                            <div className="avatar-circle-wrapper">
+                                                {avatar ? <img src={avatar} className="mini-avatar-fb" style={{width: '32px', height: '32px'}} alt="yo" /> : <FaUserCircle size={32} color="#ccc" />}
+                                            </div>
+                                            <input 
+                                                placeholder="Escribe un comentario..." 
+                                                value={comentarioTexto[post._id] || ""}
+                                                onChange={(e) => setComentarioTexto({...comentarioTexto, [post._id]: e.target.value})}
+                                                style={{ flex: 1, backgroundColor: '#f0f2f5', border: 'none', borderRadius: '20px', padding: '8px 15px', outline: 'none', fontSize: '0.9rem', color: '#000' }}
+                                            />
+                                        </form>
                                     </div>
                                 </div>
                             );
