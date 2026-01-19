@@ -407,7 +407,7 @@
     
     /* 🔥 REDUCCIÓN DE ANCHO 🔥 */
     width: 95%;            /* En pantallas medianas deja un pequeño margen */
-    max-width: 820px;      /* 👈 Ajusta este número: menor número = más estrecho */
+    max-width: 900px;      /* 👈 Ajusta este número: menor número = más estrecho */
     
     margin: 0 auto;        /* Esto lo mantiene siempre centrado */
     border-bottom-left-radius: 8px;
