@@ -403,20 +403,20 @@
 
 .fb-header-container {
     background: white;
-    /* Reducimos el ancho máximo para que no sea tan largo */
+    /* 1. Quitamos el ancho fijo para que los márgenes manuales manden */
+    width: auto !important; 
     max-width: 900px !important; 
-    width: 95%;
-
-    padding-left: -20 !important;
-    padding-right: 20 !important;
     
-    /* 🔥 Esto lo centra perfectamente en la pantalla 🔥 */
-    margin: 0 auto !important; 
+    /* 2. 🔥 TUS VALORES MANUALES 🔥 */
+    margin-left: 45px !important;   /* Espacio fijo a la izquierda */
+    margin-right: 60px !important;  /* Espacio fijo a la derecha */
     
+    /* 3. Estética */
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.1);
     overflow: hidden;
+    display: block; /* Asegura que respete los márgenes laterales */
 }
 
 .fb-cover-photo {
@@ -605,14 +605,15 @@
 .fb-header-container, 
 .publish-area, 
 .fb-card-white {
-    max-width: 900px !important;
     width: auto !important;
+    max-width: 900px !important;
     
-    /* 🔥 Mismos valores para que todo cuadre en línea recta 🔥 */
+    /* 🔥 Mismas medidas para que queden alineados verticalmente 🔥 */
     margin-left: 45px !important;
     margin-right: 60px !important;
     
-    margin-bottom: 16px !important; /* Espacio entre cuadros */
+    margin-top: 16px !important;
+    margin-bottom: 16px !important;
 }
 
 .publish-area {
