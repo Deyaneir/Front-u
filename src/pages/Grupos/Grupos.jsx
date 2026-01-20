@@ -85,13 +85,13 @@ const Grupos = () => {
         else localStorage.removeItem("ultimoGrupoVisitado");
     }, [grupoActivo]);
 
-    // --- 4. LÓGICA DE COMENTARIOS (FIX: SE ENVÍA Y SE LIMPIA) ---
+    // --- 4. LÓGICA DE COMENTARIOS ---
     const toggleComentarios = (postId) => {
         setComentariosAbiertos(prev => ({ ...prev, [postId]: !prev[postId] }));
     };
 
     const handleComentar = async (e, postId) => {
-        if (e) e.preventDefault(); // Evita que la página se recargue
+        if (e) e.preventDefault(); 
         const texto = comentarioTexto[postId];
         if (!texto || !texto.trim()) return;
 
@@ -110,7 +110,6 @@ const Grupos = () => {
             if (res.ok) {
                 const nuevoComentario = await res.json();
                 
-                // Actualizar la lista localmente para que aparezca arriba del input
                 setGrupos(prevGrupos => prevGrupos.map(g => {
                     if (g._id === grupoActivo._id) {
                         return {
@@ -125,46 +124,12 @@ const Grupos = () => {
                     return g;
                 }));
 
-                // ESTA LÍNEA LIMPIA EL INPUT TRAS ENVIAR
+                // SE LIMPIA EL INPUT TRAS ENVIAR
                 setComentarioTexto(prev => ({ ...prev, [postId]: "" }));
             }
         } catch (error) {
             console.error("Error al publicar comentario:", error);
         }
-    };
-
-    // --- NUEVO: LÓGICA DE COMPARTIR (CREA COMENTARIO) ---
-    const handleCompartirPost = async (postId) => {
-        const textoCompartido = "📢 ¡He compartido esta publicación!";
-        try {
-            const res = await fetch(`${API_URL}/${grupoActivo._id}/post/${postId}/comentar`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    autor: userName,
-                    autorFoto: avatar,
-                    autorEmail: userEmail,
-                    contenido: textoCompartido
-                })
-            });
-            if (res.ok) {
-                const nuevoComentario = await res.json();
-                setGrupos(prevGrupos => prevGrupos.map(g => {
-                    if (g._id === grupoActivo._id) {
-                        return {
-                            ...g,
-                            posts: g.posts.map(p => 
-                                p._id === postId 
-                                ? { ...p, comentarios: [...(p.comentarios || []), nuevoComentario] } 
-                                : p
-                            )
-                        };
-                    }
-                    return g;
-                }));
-                setComentariosAbiertos(prev => ({ ...prev, [postId]: true }));
-            }
-        } catch (error) { console.error("Error al compartir:", error); }
     };
 
     // --- 5. LÓGICA DE RECORTE ---
@@ -319,7 +284,7 @@ const Grupos = () => {
                                     <div className="post-action-buttons-fb">
                                         <button onClick={() => toggleLike(post._id)} className={likes[post._id] ? "liked" : ""}><FaThumbsUp /> Like</button>
                                         <button onClick={() => toggleComentarios(post._id)}><FaComment /> Comentar</button>
-                                        <button onClick={() => handleCompartirPost(post._id)}><FaShare /> Compartir</button>
+                                        <button><FaShare /> Compartir</button>
                                     </div>
 
                                     {estaAbierto && (
@@ -329,7 +294,8 @@ const Grupos = () => {
                                                     <img src={com.autorFoto || "https://via.placeholder.com/32"} className="comment-mini-avatar" alt="c" />
                                                     <div className="comment-bubble" style={{ backgroundColor: '#f0f2f5', borderRadius: '18px', padding: '8px 12px' }}>
                                                         <div className="comment-author-name" style={{ fontWeight: 'bold', fontSize: '12px', color: '#000' }}>{com.autor}</div>
-                                                        <div className="comment-text" style={{ fontSize: '13px', color: '#000' }}>{com.contenido}</div>
+                                                        {/* AUMENTO: Sangría de 50px aplicada al texto */}
+                                                        <div className="comment-text" style={{ fontSize: '13px', color: '#000', marginLeft: '50px' }}>{com.contenido}</div>
                                                     </div>
                                                 </div>
                                             ))}
@@ -342,6 +308,7 @@ const Grupos = () => {
                                                         value={comentarioTexto[post._id] || ""}
                                                         onChange={(e) => setComentarioTexto({...comentarioTexto, [post._id]: e.target.value})}
                                                     />
+                                                    {/* AUMENTO: Botón configurado para enviar */}
                                                     <button type="submit" className="btn-send-comment-icon" style={{ background: 'none', border: 'none', color: '#1877f2', cursor: 'pointer' }}>
                                                         <FaPaperPlane />
                                                     </button>
