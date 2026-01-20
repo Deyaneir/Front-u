@@ -201,22 +201,22 @@ const Grupos = () => {
         finally { setLoading(false); }
     };
 
-    const handleComentar = async (e, postId) => {
-        e.preventDefault();
-        const texto = comentarioTexto[postId];
-        if (!texto?.trim()) return;
+    const token = localStorage.getItem("token");
 
-        try {
-            const res = await fetch(`${API_URL}/${grupoActivo._id}/post/${postId}/comentar`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    autor: userName,
-                    autorFoto: avatar,
-                    autorEmail: userEmail,
-                    contenido: texto
-                })
-            });
+const res = await fetch(`${API_URL}/${grupoActivo._id}/post/${postId}/comentar`, {
+    method: 'POST',
+    headers: { 
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({
+        autor: userName,
+        autorFoto: avatar,
+        autorEmail: userEmail,
+        contenido: texto
+    })
+});
+
 
             if (res.ok) {
                 const nuevoComentario = await res.json();
