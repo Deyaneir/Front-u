@@ -133,6 +133,40 @@ const Grupos = () => {
         }
     };
 
+    // --- NUEVO: LÓGICA DE COMPARTIR (CREA COMENTARIO) ---
+    const handleCompartirPost = async (postId) => {
+        const textoCompartido = "📢 ¡He compartido esta publicación!";
+        try {
+            const res = await fetch(`${API_URL}/${grupoActivo._id}/post/${postId}/comentar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    autor: userName,
+                    autorFoto: avatar,
+                    autorEmail: userEmail,
+                    contenido: textoCompartido
+                })
+            });
+            if (res.ok) {
+                const nuevoComentario = await res.json();
+                setGrupos(prevGrupos => prevGrupos.map(g => {
+                    if (g._id === grupoActivo._id) {
+                        return {
+                            ...g,
+                            posts: g.posts.map(p => 
+                                p._id === postId 
+                                ? { ...p, comentarios: [...(p.comentarios || []), nuevoComentario] } 
+                                : p
+                            )
+                        };
+                    }
+                    return g;
+                }));
+                setComentariosAbiertos(prev => ({ ...prev, [postId]: true }));
+            }
+        } catch (error) { console.error("Error al compartir:", error); }
+    };
+
     // --- 5. LÓGICA DE RECORTE ---
     const onCropComplete = useCallback((_ , pixels) => { setCroppedAreaPixels(pixels); }, []);
     const handleConfirmCrop = async () => {
@@ -285,7 +319,7 @@ const Grupos = () => {
                                     <div className="post-action-buttons-fb">
                                         <button onClick={() => toggleLike(post._id)} className={likes[post._id] ? "liked" : ""}><FaThumbsUp /> Like</button>
                                         <button onClick={() => toggleComentarios(post._id)}><FaComment /> Comentar</button>
-                                        <button><FaShare /> Compartir</button>
+                                        <button onClick={() => handleCompartirPost(post._id)}><FaShare /> Compartir</button>
                                     </div>
 
                                     {estaAbierto && (
