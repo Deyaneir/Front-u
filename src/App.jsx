@@ -24,6 +24,7 @@ import Ajustes from "./pages/Ajustes/Ajustes.jsx";
 import ActualizarInfo from "./Actualizacion/ActualizarInfo.jsx";
 import ChangePasswordForm from "./pages/Password/ActualizarPass.jsx";
 import Grupos from "./pages/Grupos/Grupos.jsx";
+import Gusuarios from "./pages/Gusuario.jsx"
 
 // 🧭 Rutas protegidas
 import PublicRoute from "./routes/PublicRouter.jsx";
@@ -80,6 +81,7 @@ function App() {
           <Route path="ActualizarPass" element={<ChangePasswordForm />} />
           <Route path="Grupos" element={<Grupos />} />
           <Route path="Eventos" element={<Eventos />} />
+          <Route path="Gusuarios" element={<Gusuario/>}/>
         </Route>
 
         {/* ===================== */}
