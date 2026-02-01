@@ -81,7 +81,7 @@ function App() {
           <Route path="ActualizarPass" element={<ChangePasswordForm />} />
           <Route path="Grupos" element={<Grupos />} />
           <Route path="Eventos" element={<Eventos />} />
-          <Route path="Gusuarios" element={<Gusuario/>}/>
+          <Route path="Gusuarios" element={<Gusuario />} />
         </Route>
 
         {/* ===================== */}
