@@ -24,7 +24,7 @@ import Ajustes from "./pages/Ajustes/Ajustes.jsx";
 import ActualizarInfo from "./Actualizacion/ActualizarInfo.jsx";
 import ChangePasswordForm from "./pages/Password/ActualizarPass.jsx";
 import Grupos from "./pages/Grupos/Grupos.jsx";
-import Gusuarios from "./pages/Gusuario.jsx"
+import Gusuario from "./pages/Gusuario.jsx";
 
 // 🧭 Rutas protegidas
 import PublicRoute from "./routes/PublicRouter.jsx";
@@ -38,14 +38,14 @@ function App() {
   const profile = storeProfile((state) => state.profile);
   const token = storeAuth((state) => state.token);
 
-  // 🔹 SOLO pedir perfil si hay token
+  // 🔹 Cargar perfil solo si hay token
   useEffect(() => {
     if (token) {
       profile();
     }
   }, [token, profile]);
 
-  // 🔹 Animaciones
+  // 🔹 Animaciones AOS
   useEffect(() => {
     AOS.init({ once: true });
   }, []);
@@ -74,21 +74,20 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="perfil" element={<Perfil />} />
           <Route path="matches" element={<Matches />} />
-          <Route path="MUsuario" element={<MUsuario />} />
-          <Route path="UserProfile" element={<MUsuario />} />
-          <Route path="Ajustes" element={<Ajustes />} />
-          <Route path="ActualizarInfo" element={<ActualizarInfo />} />
-          <Route path="ActualizarPass" element={<ChangePasswordForm />} />
-          <Route path="Grupos" element={<Grupos />} />
-          <Route path="Eventos" element={<Eventos />} />
-          <Route path="Gusuarios" element={<Gusuario />} />
+          <Route path="musuario" element={<MUsuario />} />
+          <Route path="userprofile" element={<MUsuario />} />
+          <Route path="ajustes" element={<Ajustes />} />
+          <Route path="actualizar-info" element={<ActualizarInfo />} />
+          <Route path="actualizar-pass" element={<ChangePasswordForm />} />
+          <Route path="grupos" element={<Grupos />} />
+          <Route path="eventos" element={<Eventos />} />
+          <Route path="gusuarios" element={<Gusuario />} />
         </Route>
 
         {/* ===================== */}
         {/* 📢 PÚBLICAS LIBRES */}
         {/* ===================== */}
         <Route path="contacto" element={<Contacto />} />
-        <Route path="eventos" element={<Eventos />} />
         <Route path="beneficios" element={<Beneficios />} />
 
       </Routes>
