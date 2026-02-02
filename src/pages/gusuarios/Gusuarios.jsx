@@ -9,7 +9,7 @@ export default function Gusuario() {
   const [busqueda, setBusqueda] = useState("");
   const [loading, setLoading] = useState(true);
   
-  // Estado para el Modal Personalizado
+  // Estado para el Modal de confirmación
   const [modal, setModal] = useState({ show: false, user: null, type: "" });
 
   const currentUser = storeAuth((state) => state.user);
@@ -27,7 +27,7 @@ export default function Gusuario() {
       const data = await res.json();
       setUsuarios(Array.isArray(data) ? data : data.users || []);
     } catch (err) {
-      console.error("Error:", err);
+      console.error("Error al obtener usuarios:", err);
     } finally {
       setLoading(false);
     }
@@ -37,14 +37,16 @@ export default function Gusuario() {
     getUsuarios();
   }, []);
 
-  // Función que se ejecuta al confirmar en el Modal Blanco
+  // LÓGICA CENTRAL DE CONFIRMACIÓN
   const confirmarAccion = async () => {
     const { user, type } = modal;
     if (!user) return;
 
     try {
       if (type === "ROL") {
+        // Alternamos el rol: si es administrador pasa a estudiante y viceversa
         const nuevoRol = user.rol === "administrador" ? "estudiante" : "administrador";
+        
         const res = await fetch(`${API_URL}/${user._id}`, {
           method: "PUT",
           headers: { 
@@ -53,29 +55,41 @@ export default function Gusuario() {
           },
           body: JSON.stringify({ rol: nuevoRol }),
         });
+
         if (res.ok) {
+          // Actualización optimista de la interfaz
           setUsuarios(prev => prev.map(u => u._id === user._id ? { ...u, rol: nuevoRol } : u));
+        } else {
+          alert("No se pudo actualizar el rol en el servidor");
         }
+
       } else if (type === "DELETE") {
         const res = await fetch(`${API_URL}/${user._id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
         });
+
         if (res.ok) {
           setUsuarios(prev => prev.filter(u => u._id !== user._id));
+        } else {
+          alert("Error al eliminar el usuario");
         }
       }
     } catch (err) {
-      alert("Error en el servidor");
+      console.error("Error en la petición:", err);
+      alert("Error de conexión con el servidor");
+    } finally {
+      // Cerramos el modal
+      setModal({ show: false, user: null, type: "" });
     }
-    setModal({ show: false, user: null, type: "" }); // Cerrar modal siempre al final
   };
 
+  // Filtrado de búsqueda y exclusión propia
   const usuariosFiltrados = usuarios.filter((u) => {
     const coincide = u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || 
                     u.correoInstitucional?.toLowerCase().includes(busqueda.toLowerCase());
     
-    // Excluirte a ti misma (Damaris) por ID o Correo
+    // Filtro para no asomar tú misma (Damaris)
     const noSoyYo = u.correoInstitucional !== currentUser?.correoInstitucional && 
                     u._id !== "696701c02175478e2b8302c4"; 
     return coincide && noSoyYo;
@@ -112,7 +126,7 @@ export default function Gusuario() {
           <tbody>
             {usuariosFiltrados.length === 0 ? (
               <tr>
-                <td colSpan="4" style={{ textAlign: "center", padding: "40px" }}>No se encontraron registros</td>
+                <td colSpan="4" style={{ textAlign: "center", padding: "40px" }}>No hay registros disponibles</td>
               </tr>
             ) : (
               usuariosFiltrados.map((usuario) => (
@@ -145,7 +159,7 @@ export default function Gusuario() {
         </table>
       </div>
 
-      {/* --- MODAL DESLIZABLE (Cuadro Blanco) --- */}
+      {/* --- MODAL BLANCO DESLIZABLE --- */}
       {modal.show && (
         <div className="modal-overlay">
           <div className="modal-card">
