@@ -89,9 +89,9 @@ export default function Gusuario() {
     const coincide = u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || 
                     u.correoInstitucional?.toLowerCase().includes(busqueda.toLowerCase());
     
-    // Filtro para no asomar tú misma (Damaris)
-    const noSoyYo = u.correoInstitucional !== currentUser?.correoInstitucional && 
-                    u._id !== "696701c02175478e2b8302c4"; 
+    // 🔹 CORRECCIÓN: Excluir al usuario logueado
+    const noSoyYo = u._id !== currentUser?._id;
+
     return coincide && noSoyYo;
   });
 
