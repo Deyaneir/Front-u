@@ -8,7 +8,7 @@ import {
 } from 'react-icons/fa';
 import './Grupos.css';
 
-const API_URL = "https://controversial-jacquette-vibe-u-d09f766e.koyeb.app/api/grupos";
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/grupos`;
 
 const Grupos = () => {
     // --- ESTADOS DE DATOS ---
@@ -65,7 +65,7 @@ const Grupos = () => {
                 const token = localStorage.getItem('token');
                 if (!token) return;
                 const response = await axios.get(
-                    `https://controversial-jacquette-vibe-u-d09f766e.koyeb.app/api/usuarios/perfil`, 
+                    `${API_URL}/api/usuarios/perfil`, 
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 if (response.data?.nombre) setUserName(response.data.nombre);
