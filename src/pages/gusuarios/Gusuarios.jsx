@@ -84,12 +84,12 @@ export default function Gusuario() {
     }
   };
 
-  // Filtrado de búsqueda y exclusión propia
+  // 🔹 Filtrado de búsqueda y exclusión del usuario logueado
   const usuariosFiltrados = usuarios.filter((u) => {
     const coincide = u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || 
                     u.correoInstitucional?.toLowerCase().includes(busqueda.toLowerCase());
     
-    // 🔹 CORRECCIÓN: Excluir al usuario logueado
+    // 🔹 Excluir solo al usuario logueado
     const noSoyYo = u._id !== currentUser?._id;
 
     return coincide && noSoyYo;
