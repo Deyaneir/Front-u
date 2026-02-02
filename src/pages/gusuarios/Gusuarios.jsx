@@ -9,13 +9,12 @@ export default function Gusuario() {
   const [busqueda, setBusqueda] = useState("");
   const [loading, setLoading] = useState(true);
 
-  // Obtenemos tu usuario del store
   const currentUser = storeAuth((state) => state.user);
+  const token = storeAuth.getState().token;
 
   const getUsuarios = async () => {
     try {
       setLoading(true);
-      const token = storeAuth.getState().token;
       const res = await fetch(API_URL, {
         headers: {
           "Content-Type": "application/json",
@@ -35,15 +34,64 @@ export default function Gusuario() {
     getUsuarios();
   }, []);
 
-  // FILTRADO ACTUALIZADO
+  // ===============================
+  // LÓGICA: CAMBIAR A ADMINISTRADOR
+  // ===============================
+  const handlePromover = async (id) => {
+    if (!window.confirm("¿Deseas convertir a este usuario en administrador?")) return;
+
+    try {
+      // Ajusta esta URL según tu endpoint de actualización
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ rol: "administrador" }),
+      });
+
+      if (res.ok) {
+        setUsuarios((prev) =>
+          prev.map((u) => (u._id === id ? { ...u, rol: "administrador" } : u))
+        );
+        alert("Usuario promovido exitosamente");
+      }
+    } catch (err) {
+      alert("No se pudo actualizar el rol");
+    }
+  };
+
+  // ===============================
+  // LÓGICA: ELIMINAR DE LA BDD
+  // ===============================
+  const handleEliminar = async (id) => {
+    if (!window.confirm("¿Estás seguro? Esta acción eliminará al usuario de la base de datos permanentemente.")) return;
+
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.ok) {
+        setUsuarios((prev) => prev.filter((u) => u._id !== id));
+        alert("Usuario eliminado de la base de datos");
+      } else {
+        throw new Error();
+      }
+    } catch (err) {
+      alert("Error al eliminar el registro");
+    }
+  };
+
   const usuariosFiltrados = usuarios.filter((u) => {
-    // 1. Buscamos por nombre o por correoInstitucional
     const coincideBusqueda = 
       u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
       u.correoInstitucional?.toLowerCase().includes(busqueda.toLowerCase());
     
-    // 2. EXCLUIRTE A TI (Damaris Lopez)
-    // Usamos el ID de tu BDD que me pasaste o el correoInstitucional
     const noSoyYo = u.correoInstitucional !== currentUser?.correoInstitucional && 
                     u._id !== "696701c02175478e2b8302c4"; 
 
@@ -89,7 +137,6 @@ export default function Gusuario() {
               usuariosFiltrados.map((usuario) => (
                 <tr key={usuario._id}>
                   <td className="font-bold">{usuario.nombre}</td>
-                  {/* AQUÍ ESTABA EL ERROR: usamos correoInstitucional */}
                   <td>{usuario.correoInstitucional}</td>
                   <td>
                     <span className={`gestion-badge ${usuario.rol === 'administrador' ? 'admin' : 'usuario'}`}>
@@ -98,10 +145,14 @@ export default function Gusuario() {
                   </td>
                   <td>
                     <div className="actions-cell" style={{ justifyContent: "center" }}>
-                      <button className="btn-edit" onClick={() => alert("Editar a " + usuario.nombre)}>
-                        ✏️ Editar
-                      </button>
-                      <button className="btn-delete" onClick={() => alert("Eliminar logic...")}>
+                      {/* Botón condicional: solo si no es admin ya */}
+                      {usuario.rol !== "administrador" && (
+                        <button className="btn-edit" onClick={() => handlePromover(usuario._id)}>
+                          ⬆️ Hacer Admin
+                        </button>
+                      )}
+                      
+                      <button className="btn-delete" onClick={() => handleEliminar(usuario._id)}>
                         🗑️ Eliminar
                       </button>
                     </div>
