@@ -38,25 +38,22 @@ function App() {
   const profile = storeProfile((state) => state.profile);
   const token = storeAuth((state) => state.token);
 
-  // 🔹 SOLO pedir perfil si hay token
+  // 🔹 Cargar perfil si existe sesión
   useEffect(() => {
     if (token) {
       profile();
     }
   }, [token, profile]);
 
-  // 🔹 Animaciones
+  // 🔹 Inicializar animaciones
   useEffect(() => {
-    AOS.init({ once: true });
+    AOS.init({ once: true, duration: 800 });
   }, []);
 
   return (
     <BrowserRouter>
       <Routes>
-
-        {/* ===================== */}
-        {/* 🌐 RUTAS PÚBLICAS */}
-        {/* ===================== */}
+        {/* 🌐 RUTAS QUE SÓLO SE VEN SI NO ESTÁS LOGUEADO */}
         <Route element={<PublicRoute />}>
           <Route index element={<Landing />} />
           <Route path="login" element={<Login />} />
@@ -67,30 +64,27 @@ function App() {
           <Route path="recuperarpassword/:token" element={<ResetPassword />} />
         </Route>
 
-        {/* ===================== */}
-        {/* 🔒 RUTAS PRIVADAS */}
-        {/* ===================== */}
+        {/* 🔒 RUTAS PROTEGIDAS (REQUIEREN LOGIN) */}
         <Route element={<PrivateRoute />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="perfil" element={<Perfil />} />
           <Route path="matches" element={<Matches />} />
-          <Route path="MUsuario" element={<MUsuario />} />
-          <Route path="UserProfile" element={<MUsuario />} />
-          <Route path="Ajustes" element={<Ajustes />} />
-          <Route path="ActualizarInfo" element={<ActualizarInfo />} />
-          <Route path="ActualizarPass" element={<ChangePasswordForm />} />
-          <Route path="Grupos" element={<Grupos />} />
-          <Route path="Eventos" element={<Eventos />} />
-          <Route path="Gusuarios" element={<Gusuario />} />
+          <Route path="musuario" element={<MUsuario />} />
+          <Route path="user-profile" element={<MUsuario />} />
+          <Route path="ajustes" element={<Ajustes />} />
+          <Route path="actualizar-info" element={<ActualizarInfo />} />
+          <Route path="actualizar-pass" element={<ChangePasswordForm />} />
+          <Route path="grupos" element={<Grupos />} />
+          <Route path="gusuarios" element={<Gusuario />} />
         </Route>
 
-        {/* ===================== */}
-        {/* 📢 PÚBLICAS LIBRES */}
-        {/* ===================== */}
+        {/* 📢 RUTAS ABIERTAS A TODO EL MUNDO */}
         <Route path="contacto" element={<Contacto />} />
         <Route path="eventos" element={<Eventos />} />
         <Route path="beneficios" element={<Beneficios />} />
 
+        {/* 404 - Opcional: Redirigir si la ruta no existe */}
+        <Route path="*" element={<div>Página no encontrada</div>} />
       </Routes>
     </BrowserRouter>
   );

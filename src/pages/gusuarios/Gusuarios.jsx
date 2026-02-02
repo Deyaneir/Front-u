@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import storeAuth from "../../context/storeAuth";
+import "./Gusuarios.css";
 
 // 🔗 URL DEL BACKEND
 const API_URL =
