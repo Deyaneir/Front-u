@@ -1,26 +1,22 @@
-/* Gusuarios.css - Estilos de Gestión Final */
-
-/* Contenedor principal */
+/* --- CONTENEDOR PRINCIPAL --- */
 .gestion-usuarios-seccion {
-  background-color: #E1BEE7 !important; /* Fondo lila según tu preferencia */
+  background-color: #E1BEE7 !important; /* Fondo lila solicitado */
   min-height: 100vh;
   padding: 40px;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', sans-serif;
   color: #1f2937;
 }
 
-/* Título de la página */
 .gestion-header h2 {
-  color: #111827;
   font-size: 24px;
   margin-bottom: 25px;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 10px;
-  font-weight: 700;
 }
 
-/* Buscador tipo Gestión */
+/* --- BUSCADOR --- */
 .gestion-search-container {
   margin-bottom: 25px;
 }
@@ -32,19 +28,11 @@
   border-radius: 10px;
   border: 1px solid #d1d5db;
   background: white !important;
-  color: #1f2937;
   font-size: 14px;
-  transition: all 0.2s ease;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.gestion-input-search:focus {
-  outline: none;
-  border-color: #7b1fa2;
-  box-shadow: 0 0 0 3px rgba(123, 31, 162, 0.2);
-}
-
-/* Contenedor de la Tabla */
+/* --- TABLA --- */
 .gestion-tabla-wrapper {
   background: white;
   border-radius: 12px;
@@ -56,19 +44,14 @@
 .gestion-table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
-}
-
-.gestion-table thead {
-  background-color: #f9fafb;
 }
 
 .gestion-table th {
   padding: 15px 20px;
   text-align: left;
+  background-color: #f9fafb;
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
   color: #6b7280;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -76,176 +59,96 @@
 .gestion-table td {
   padding: 16px 20px;
   border-bottom: 1px solid #f3f4f6;
-  color: #374151;
   font-size: 14px;
-  vertical-align: middle;
 }
 
-.gestion-table tr:hover {
-  background-color: #fbfaff;
-}
+.font-bold { font-weight: 600; color: #111827; }
 
-/* Badges de Rol */
+/* --- BADGES --- */
 .gestion-badge {
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 12px;
   font-weight: 600;
-  display: inline-block;
 }
+.gestion-badge.admin { background-color: #f3e8ff; color: #7b1fa2; }
+.gestion-badge.usuario { background-color: #e0f2fe; color: #0369a1; }
 
-.gestion-badge.admin {
-  background-color: #f3e8ff;
-  color: #7b1fa2;
-}
-
-.gestion-badge.usuario {
-  background-color: #e0f2fe;
-  color: #0369a1;
-}
-
-/* --- BOTONES DE ACCIÓN (Mismo tamaño y separados) --- */
+/* --- BOTONES DE LA TABLA (Mismo tamaño) --- */
 .actions-cell {
   display: flex;
-  gap: 15px; /* Espacio entre botones */
-  justify-content: center; /* Centrados en la celda */
-  align-items: center;
+  gap: 15px;
+  justify-content: center;
 }
 
-.btn-promote, 
-.btn-downgrade, 
-.btn-delete {
-  /* Tamaño uniforme obligatorio */
-  width: 140px; 
-  height: 38px;
-  
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  
+.btn-promote, .btn-downgrade, .btn-delete {
+  width: 135px; /* Tamaño uniforme */
+  height: 36px;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
   border: 1px solid transparent;
-}
-
-/* Estilo Hacer Admin */
-.btn-promote {
-  background-color: #f0fdf4;
-  color: #16a34a;
-  border-color: #bbf7d0;
-}
-.btn-promote:hover {
-  background-color: #dcfce7;
-  transform: translateY(-2px);
-}
-
-/* Estilo Quitar Admin */
-.btn-downgrade {
-  background-color: #fff7ed;
-  color: #c2410c;
-  border-color: #ffedd5;
-}
-.btn-downgrade:hover {
-  background-color: #ffecd2;
-  transform: translateY(-2px);
-}
-
-/* Estilo Eliminar */
-.btn-delete {
-  background-color: #fef2f2;
-  color: #b91c1c;
-  border-color: #fee2e2;
-}
-.btn-delete:hover {
-  background-color: #fee2e2;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 6px -1px rgba(185, 28, 28, 0.2);
-}
-
-/* Utilidades */
-.font-bold {
-  font-weight: 600;
-  color: #111827;
-}
-
-/* --- MODAL SYSTEM --- */
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(4px); /* Difumina lo de atrás */
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.2s;
+}
+
+.btn-promote { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+.btn-downgrade { background: #fff7ed; color: #c2410c; border-color: #ffedd5; }
+.btn-delete { background: #fef2f2; color: #b91c1c; border-color: #fee2e2; }
+
+.btn-promote:hover, .btn-downgrade:hover, .btn-delete:hover {
+  transform: translateY(-2px);
+}
+
+/* --- MODAL BLANCO DESLIZABLE --- */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
   z-index: 9999;
-  animation: fadeIn 0.3s ease;
 }
 
 .modal-card {
-  background: white;
-  padding: 30px;
-  border-radius: 16px;
-  width: 90%;
-  max-width: 400px;
+  background: white; /* Cuadro Blanco Solicitado */
+  padding: 40px;
+  border-radius: 20px;
+  width: 90%; max-width: 420px;
   text-align: center;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
-  transform: translateY(0);
-  animation: slideUp 0.4s cubic-bezier(0.17, 0.67, 0.83, 0.67);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  animation: slideUp 0.4s ease-out;
 }
 
-.modal-icon { font-size: 40px; margin-bottom: 10px; }
+.modal-icon { font-size: 40px; margin-bottom: 15px; }
+.modal-title { color: #111827; margin-bottom: 10px; font-size: 20px; }
+.modal-text { color: #4b5563; margin-bottom: 25px; }
 
+/* Botones del Modal separados */
 .modal-buttons {
   display: flex;
-  gap: 12px;
-  margin-top: 25px;
+  gap: 25px; /* Botones no muy unidos */
   justify-content: center;
 }
 
-.btn-cancel {
-  background: #f3f4f6;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
+.btn-modal-cancel, .btn-modal-confirm-rol, .btn-modal-confirm-del {
+  flex: 1; /* Para que midan lo mismo */
+  padding: 12px;
+  border-radius: 10px;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: 600;
-  color: #4b5563;
-}
-
-.btn-confirm-rol {
-  background: #7b1fa2; /* Morado de tu app */
-  color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
 }
 
-.btn-confirm-del {
-  background: #dc2626; /* Rojo para borrar */
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-}
+.btn-modal-cancel { background: #f3f4f6; color: #374151; }
+.btn-modal-confirm-rol { background: #7b1fa2; color: white; }
+.btn-modal-confirm-del { background: #ef4444; color: white; }
 
-/* ANIMACIONES */
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
+/* Animación Deslizable */
 @keyframes slideUp {
-  from { transform: translateY(50px); opacity: 0; }
+  from { transform: translateY(40px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
