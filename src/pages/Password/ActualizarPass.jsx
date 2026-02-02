@@ -74,11 +74,12 @@ const ChangePasswordForm = () => {
         return;
       }
 
-      const res = await axios.put(
-        `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/actualizar-password`,
-        { oldPassword, newPassword },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+     const res = await axios.put(
+  `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/actualizar-password`,
+  { oldPassword, newPassword },
+  { headers: { Authorization: `Bearer ${token}` } }
+);
+
 
       toast.success(res.data.msg || "Contraseña actualizada correctamente");
 
