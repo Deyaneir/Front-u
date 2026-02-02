@@ -10,8 +10,8 @@ export default function Gusuario() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Obtenemos los datos del admin logueado desde el store
-  const auth = storeAuth((state) => state.user); 
+  // Obtenemos el usuario actual de forma segura
+  const currentUser = storeAuth((state) => state.user);
 
   const getUsuarios = async () => {
     try {
@@ -27,6 +27,8 @@ export default function Gusuario() {
       if (!res.ok) throw new Error("Error al cargar");
 
       const data = await res.json();
+      // Verificación de consola para depurar los emails
+      console.log("Datos recibidos:", data); 
       setUsuarios(Array.isArray(data) ? data : data.users || []);
     } catch (err) {
       setError("Error de conexión");
@@ -39,14 +41,31 @@ export default function Gusuario() {
     getUsuarios();
   }, []);
 
-  // FILTRADO: Busqueda + Excluirte a ti mismo
+  const eliminarUsuario = async (id) => {
+    if (!window.confirm("¿Seguro que deseas eliminar este usuario?")) return;
+    try {
+      const token = storeAuth.getState().token;
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("No se pudo eliminar");
+      setUsuarios((prev) => prev.filter((u) => u._id !== id));
+    } catch (err) {
+      alert("Error al eliminar usuario");
+    }
+  };
+
+  // FILTRO CORREGIDO
   const usuariosFiltrados = usuarios.filter((u) => {
+    // 1. Filtro de búsqueda
     const coincideBusqueda = 
       u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
       u.email?.toLowerCase().includes(busqueda.toLowerCase());
     
-    // Suponiendo que tu ID de usuario está en auth.id o auth._id
-    const noSoyYo = u._id !== auth?._id && u.email !== auth?.email;
+    // 2. Filtro para no mostrarte a ti mismo (usando email que es único)
+    // Si currentUser no existe todavía, dejamos que pase (true)
+    const noSoyYo = currentUser ? u.email !== currentUser.email : true;
 
     return coincideBusqueda && noSoyYo;
   });
@@ -76,29 +95,29 @@ export default function Gusuario() {
               <th>Nombre</th>
               <th>Email</th>
               <th>Rol</th>
-              <th style={{ textAlign: "right" }}>Acciones</th>
+              <th style={{ textAlign: "center" }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {usuariosFiltrados.length === 0 ? (
               <tr>
-                <td colSpan="4" style={{ textAlign: "center", padding: "30px" }}>
-                  No hay otros usuarios registrados
+                <td colSpan="4" style={{ textAlign: "center", padding: "40px" }}>
+                  No se encontraron otros usuarios
                 </td>
               </tr>
             ) : (
               usuariosFiltrados.map((usuario) => (
                 <tr key={usuario._id}>
                   <td className="font-bold">{usuario.nombre}</td>
-                  {/* Asegúrate de que el backend envíe el campo 'email' */}
-                  <td>{usuario.email || "Sin email"}</td>
+                  {/* Cambia 'email' por la propiedad exacta que veas en el console.log */}
+                  <td>{usuario.email || <span style={{color: '#ccc'}}>Sin correo</span>}</td>
                   <td>
                     <span className={`gestion-badge ${usuario.rol === 'administrador' ? 'admin' : 'usuario'}`}>
-                      {usuario.rol || "usuario"}
+                      {usuario.rol || "estudiante"}
                     </span>
                   </td>
                   <td>
-                    <div className="actions-cell" style={{ justifyContent: "flex-end" }}>
+                    <div className="actions-cell" style={{ justifyContent: "center" }}>
                       <button className="btn-edit" onClick={() => alert("Editar")}>
                         ✏️ Editar
                       </button>
