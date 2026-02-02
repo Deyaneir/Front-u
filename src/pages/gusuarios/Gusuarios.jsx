@@ -3,7 +3,7 @@ import storeAuth from "../../context/storeAuth";
 import "./Gusuarios.css";
 
 // 🔗 URL DEL BACKEND
-const API_URL = "https://controversial-jacquette-vibe-u-d09f766e.koyeb.app/api/usuarios";
+const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/usuarios`;
 
 export default function Gusuario() {
   const [usuarios, setUsuarios] = useState([]);
