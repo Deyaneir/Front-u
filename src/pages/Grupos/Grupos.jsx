@@ -65,7 +65,7 @@ const Grupos = () => {
                 const token = localStorage.getItem('token');
                 if (!token) return;
                 const response = await axios.get(
-                    `${API_URL}/api/usuarios/perfil`, 
+                    `${import.meta.env.VITE_BACKEND_URL}/api/usuarios/perfil`, 
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
                 if (response.data?.nombre) setUserName(response.data.nombre);
