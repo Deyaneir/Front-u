@@ -10,10 +10,12 @@ export default function Gusuario() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Obtenemos los datos del admin logueado desde el store
+  const auth = storeAuth((state) => state.user); 
+
   const getUsuarios = async () => {
     try {
       setLoading(true);
-      setError(null);
       const token = storeAuth.getState().token;
       const res = await fetch(API_URL, {
         headers: {
@@ -22,13 +24,12 @@ export default function Gusuario() {
         },
       });
 
-      if (!res.ok) throw new Error("No se pudieron cargar los usuarios");
+      if (!res.ok) throw new Error("Error al cargar");
 
       const data = await res.json();
       setUsuarios(Array.isArray(data) ? data : data.users || []);
     } catch (err) {
-      setError("Error al conectar con el servidor");
-      setUsuarios([]);
+      setError("Error de conexión");
     } finally {
       setLoading(false);
     }
@@ -38,26 +39,17 @@ export default function Gusuario() {
     getUsuarios();
   }, []);
 
-  const eliminarUsuario = async (id) => {
-    if (!window.confirm("¿Seguro que deseas eliminar este usuario?")) return;
-    try {
-      const token = storeAuth.getState().token;
-      const res = await fetch(`${API_URL}/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("No se pudo eliminar");
-      setUsuarios((prev) => prev.filter((u) => u._id !== id));
-    } catch (err) {
-      alert("Error al eliminar usuario");
-    }
-  };
-
-  const usuariosFiltrados = usuarios.filter(
-    (u) =>
+  // FILTRADO: Busqueda + Excluirte a ti mismo
+  const usuariosFiltrados = usuarios.filter((u) => {
+    const coincideBusqueda = 
       u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) ||
-      u.email?.toLowerCase().includes(busqueda.toLowerCase())
-  );
+      u.email?.toLowerCase().includes(busqueda.toLowerCase());
+    
+    // Suponiendo que tu ID de usuario está en auth.id o auth._id
+    const noSoyYo = u._id !== auth?._id && u.email !== auth?.email;
+
+    return coincideBusqueda && noSoyYo;
+  });
 
   if (loading) return <div className="gestion-usuarios-seccion"><h3>Cargando...</h3></div>;
 
@@ -84,28 +76,29 @@ export default function Gusuario() {
               <th>Nombre</th>
               <th>Email</th>
               <th>Rol</th>
-              <th>Acciones</th>
+              <th style={{ textAlign: "right" }}>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {usuariosFiltrados.length === 0 ? (
               <tr>
                 <td colSpan="4" style={{ textAlign: "center", padding: "30px" }}>
-                  No se encontraron usuarios
+                  No hay otros usuarios registrados
                 </td>
               </tr>
             ) : (
               usuariosFiltrados.map((usuario) => (
                 <tr key={usuario._id}>
                   <td className="font-bold">{usuario.nombre}</td>
-                  <td>{usuario.email}</td>
+                  {/* Asegúrate de que el backend envíe el campo 'email' */}
+                  <td>{usuario.email || "Sin email"}</td>
                   <td>
-                    <span className={`gestion-badge ${usuario.rol === 'admin' ? 'admin' : 'usuario'}`}>
+                    <span className={`gestion-badge ${usuario.rol === 'administrador' ? 'admin' : 'usuario'}`}>
                       {usuario.rol || "usuario"}
                     </span>
                   </td>
                   <td>
-                    <div className="actions-cell">
+                    <div className="actions-cell" style={{ justifyContent: "flex-end" }}>
                       <button className="btn-edit" onClick={() => alert("Editar")}>
                         ✏️ Editar
                       </button>
