@@ -200,4 +200,4 @@ const ChangePasswordForm = () => {
   );
 };
 
-export default ActualizarPass;
+export default ChangePasswordForm;
