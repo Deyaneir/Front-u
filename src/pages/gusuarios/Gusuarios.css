@@ -1,138 +1,112 @@
-/* Gusuarios.css */
-:root {
-  --primary-color: #7c3aed; /* Púrpura */
-  --bg-color: #f9fafb;
-  --text-main: #1f2937;
-  --text-muted: #6b7280;
-  --white: #ffffff;
-}
+/* Gusuarios.css - Estilos específicos para Gestión de Usuarios */
 
-.admin-container {
-  padding: 40px;
-  background-color: var(--bg-color);
+/* Usamos este contenedor para que el CSS solo aplique a lo que esté dentro */
+.gestion-usuarios-page {
+  --g-primary: #1a73e8;
+  --g-bg: #f8f9fa;
+  --g-border: #dadce0;
+  --g-text-main: #3c4043;
+  --g-text-muted: #5f6368;
+  
+  padding: 32px;
+  background-color: var(--g-bg);
   min-height: 100vh;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', -apple-system, sans-serif;
 }
 
-.admin-header h2 {
-  color: var(--text-main);
-  font-size: 1.8rem;
-  margin-bottom: 5px;
+/* --- BARRA DE GESTIÓN (SEARCH) --- */
+.gestion-usuarios-page .gestion-search-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  gap: 16px;
 }
 
-.admin-header p {
-  color: var(--text-muted);
-  margin-bottom: 30px;
+.gestion-usuarios-page .gestion-input-search {
+  flex: 1;
+  max-width: 480px;
+  padding: 10px 16px 10px 40px;
+  border: 1px solid var(--g-border);
+  border-radius: 8px;
+  font-size: 14px;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%235f6368'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'%3E%3C/path%3E%3C/svg%3E") no-repeat 12px center;
+  background-size: 18px;
+  transition: all 0.2s ease;
 }
 
-/* Buscador */
-.admin-actions {
-  margin-bottom: 25px;
-}
-
-.search-input {
-  width: 100%;
-  max-width: 400px;
-  padding: 12px 16px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-}
-
-.search-input:focus {
+.gestion-usuarios-page .gestion-input-search:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+  border-color: var(--g-primary);
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
 }
 
-/* Tabla */
-.table-wrapper {
-  background: var(--white);
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+/* --- BOTÓN DE GESTIÓN --- */
+.gestion-usuarios-page .gestion-btn-add {
+  background-color: var(--g-primary);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 6px;
+  border: none;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gestion-usuarios-page .gestion-btn-add:hover {
+  background-color: #1557b0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* --- TABLA DE GESTIÓN --- */
+.gestion-usuarios-page .gestion-table-container {
+  background: white;
+  border: 1px solid var(--g-border);
+  border-radius: 8px;
   overflow: hidden;
 }
 
-.users-table {
+.gestion-usuarios-page .gestion-table {
   width: 100%;
   border-collapse: collapse;
+}
+
+.gestion-usuarios-page .gestion-table th {
+  background-color: #f1f3f4;
+  padding: 12px 20px;
   text-align: left;
-}
-
-.users-table thead {
-  background-color: #f3f4f6;
-}
-
-.users-table th {
-  padding: 15px 20px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--text-main);
-  font-size: 0.9rem;
+  color: var(--g-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--g-border);
 }
 
-.users-table td {
-  padding: 15px 20px;
-  border-bottom: 1px solid #f3f4f6;
-  color: var(--text-main);
-  font-size: 0.95rem;
+.gestion-usuarios-page .gestion-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f1f3f4;
+  font-size: 14px;
+  color: var(--g-text-main);
 }
 
-.users-table tr:hover {
-  background-color: #f9fafb;
+/* --- BADGES DE ESTADO --- */
+.gestion-usuarios-page .gestion-status {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 
-/* Badges (Roles) */
-.badge {
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-transform: capitalize;
+.gestion-usuarios-page .status-active {
+  background-color: #e6f4ea;
+  color: #1e8e3e;
 }
 
-.badge.admin { background: #dcfce7; color: #166534; }
-.badge.usuario { background: #e0f2fe; color: #075985; }
-
-/* Botones */
-.actions-cell {
-  display: flex;
-  gap: 10px;
+.gestion-usuarios-page .status-pending {
+  background-color: #fef7e0;
+  color: #b05a00;
 }
-
-.btn-edit, .btn-delete {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: opacity 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.btn-edit {
-  background-color: #f3e8ff;
-  color: #6b21a8;
-}
-
-.btn-delete {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-.btn-edit:hover, .btn-delete:hover {
-  opacity: 0.8;
-}
-
-.no-data {
-  text-align: center;
-  padding: 40px !important;
-  color: var(--text-muted);
-}
-
-.font-bold { font-weight: 600; }
