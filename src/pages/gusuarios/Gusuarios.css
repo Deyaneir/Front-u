@@ -2,7 +2,7 @@
 
 /* Contenedor principal que debe envolver TODO en tu página de usuarios */
 .gestion-usuarios-seccion {
-  background-color: #f3f4f6 !important; /* Forzamos fondo gris claro profesional */
+  background-color: #E1BEE7 !important; /* Forzamos fondo gris claro profesional */
   min-height: 100vh;
   padding: 40px;
   font-family: 'Inter', sans-serif;
