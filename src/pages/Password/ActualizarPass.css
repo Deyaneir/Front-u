@@ -1,0 +1,190 @@
+/* ---------------------------------------------------- */
+/* Contenedor Principal */
+/* ---------------------------------------------------- */
+.password-change-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 20px;
+  min-height: 100vh; /* Asegura que ocupe toda la altura */
+  background-color: #f9f5fc; /* Fondo ligero */
+}
+
+/* ---------------------------------------------------- */
+/* Tarjeta Principal */
+/* ---------------------------------------------------- */
+.password-change-card {
+  background-color: #ffffff;
+  padding: 40px 50px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+  width: 100%;
+  max-width: 450px; /* Ancho máximo */
+  text-align: center;
+}
+
+/* Estilos del ícono de usuario */
+.icon-circle {
+  width: 120px;
+  height: 120px;
+  background-color: transparent;
+  border: 4px solid #5d3f6a;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto 25px auto;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.user-avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+/* Nombre de usuario destacado */
+.main-username-title {
+  font-size: 2em;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+/* Título del formulario */
+.title {
+  margin-top: 15px;
+  margin-bottom: 30px;
+  color: #333;
+  font-size: 1.5em;
+  font-weight: 600;
+}
+
+/* ---------------------------------------------------- */
+/* Formulario y Campos */
+/* ---------------------------------------------------- */
+.form-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Campos de entrada */
+.input-field {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px; 
+  font-size: 1em;
+  color: #333; 
+  background-color: #fff;
+  box-sizing: border-box; 
+  outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input-field:focus {
+  border-color: #5d3f6a;
+  box-shadow: 0 0 5px rgba(93, 63, 106, 0.3);
+}
+
+/* Contenedor de input con ojo */
+.input-with-eye {
+  position: relative;
+  width: 100%;
+}
+
+.input-with-eye .input-field {
+  padding-right: 45px; /* Espacio para el ojo */
+  height: 42px;
+}
+
+/* Ícono de ojo dentro del input */
+.input-with-eye .eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-with-eye .eye-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Hover del ojo */
+.input-with-eye .eye-icon:hover {
+  opacity: 0.8;
+}
+
+/* ---------------------------------------------------- */
+/* Botones */
+/* ---------------------------------------------------- */
+.btn-row {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.cancel-btn,
+.save-btn {
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 1em;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  flex: 1;
+  margin: 0 5px;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.cancel-btn {
+  background-color: #ddd;
+  color: #333;
+}
+
+.cancel-btn:hover {
+  background-color: #ccc;
+}
+
+.save-btn {
+  background-color: #5d3f6a;
+  color: #fff;
+}
+
+.save-btn:hover {
+  background-color: #4b3256;
+}
+
+/* ---------------------------------------------------- */
+/* Mensajes de feedback */
+/* ---------------------------------------------------- */
+.feedback-message {
+  padding: 10px 15px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 0.95em;
+  text-align: left;
+  border: 1px solid transparent;
+}
+
+.error-message {
+  background-color: #fde8e8;
+  color: #cc0000;
+  border-color: #f0c3c3;
+}
+
+.success-message {
+  background-color: #e8fde8;
+  color: #008000;
+  border-color: #c3f0c3;
+}
