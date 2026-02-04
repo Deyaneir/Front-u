@@ -3,8 +3,7 @@ import Cropper from 'react-easy-crop';
 import axios from 'axios';
 import { 
     FaPlus, FaArrowLeft, FaCamera, FaThumbsUp, FaComment, FaSearch, FaTimes, FaEllipsisH, FaShare, 
-    FaGlobeAmericas, FaRegImage, FaUserFriends, FaUserCircle, FaTrash, FaSignOutAlt, FaRegFileAlt,
-    FaRegBookmark, FaBookmark, FaPaperPlane, FaEdit, FaSave
+    FaGlobeAmericas, FaRegImage, FaUserFriends, FaUserCircle, FaTrash, FaPaperPlane, FaEdit
 } from 'react-icons/fa';
 import './Grupos.css';
 
@@ -34,9 +33,8 @@ const Grupos = () => {
     const [nuevoPost, setNuevoPost] = useState("");
     const [fotoPost, setFotoPost] = useState(null);
     const [likes, setLikes] = useState({});
-    const [guardados, setGuardados] = useState({});
     
-    // NUEVO: Estado para editar posts
+    // Estado para editar posts
     const [postEditandoId, setPostEditandoId] = useState(null);
     const [contenidoEditado, setContenidoEditado] = useState("");
 
@@ -55,13 +53,8 @@ const Grupos = () => {
     const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
 
     const fileInputRef = useRef(null);
-    const coverInputRef = useRef(null); // NUEVO
+    const coverInputRef = useRef(null);
     const postFotoRef = useRef(null);
-
-    // --- LÓGICA DE DESPLIEGUE ---
-    const toggleComentarios = (postId) => {
-        setComentariosAbiertos(prev => ({ ...prev, [postId]: !prev[postId] }));
-    };
 
     // --- 1. CARGAR PERFIL ---
     useEffect(() => {
@@ -129,7 +122,6 @@ const Grupos = () => {
             } else if (tipoRecorte === "grupo") {
                 setNuevoGrupo({ ...nuevoGrupo, imagen: base64 });
             }
-            
             setImageToCrop(null); 
         } catch (e) { console.error("Error al recortar", e); }
     };
@@ -144,37 +136,6 @@ const Grupos = () => {
             });
             if (res.ok) cargarGrupos();
         } catch (error) { console.error("Error al actualizar imagen:", error); }
-    };
-
-    const handleUnirseGrupo = async (grupo) => {
-        try {
-            const res = await fetch(`${API_URL}/${grupo._id}/unirse`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ correo: userEmail })
-            });
-            if (res.ok) { cargarGrupos(); }
-        } catch (error) { console.error(error); }
-    };
-
-    const handleAbandonarGrupo = async (id) => {
-        if (!window.confirm("¿Seguro que quieres abandonar el grupo?")) return;
-        try {
-            const res = await fetch(`${API_URL}/${id}/abandonar`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ correo: userEmail })
-            });
-            if (res.ok) { cargarGrupos(); setGrupoActivoId(null); }
-        } catch (error) { console.error(error); }
-    };
-
-    const handleEliminarGrupo = async (id) => {
-        if (!window.confirm("¿Eliminar este grupo definitivamente?")) return;
-        try {
-            const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            if (res.ok) { cargarGrupos(); setGrupoActivoId(null); }
-        } catch (error) { console.error(error); }
     };
 
     const handleCrearGrupo = async (e) => {
@@ -234,7 +195,7 @@ const Grupos = () => {
                     if (g._id === grupoActivoId) {
                         return {
                             ...g,
-                            posts: g.posts.map(p => p._id === postId ? { ...p, contenido: contenidoEditado } : p)
+                            posts: g.posts.map(p => p._id === postId ? { ...p, contenido: contenidoEditado, editado: true } : p)
                         };
                     }
                     return g;
@@ -242,6 +203,20 @@ const Grupos = () => {
                 setPostEditandoId(null);
             }
         } catch (error) { console.error("Error al editar post:", error); }
+    };
+
+    const handleEliminarPost = async (postId) => {
+        if (!window.confirm("¿Eliminar esta publicación?")) return;
+        try {
+            const res = await fetch(`${API_URL}/${grupoActivoId}/post/${postId}`, { method: 'DELETE' });
+            if (res.ok) {
+                setGrupos(prev => prev.map(g => 
+                    g._id === grupoActivoId 
+                    ? { ...g, posts: g.posts.filter(p => p._id !== postId) } 
+                    : g
+                ));
+            }
+        } catch (error) { console.error(error); }
     };
 
     const handleComentar = async (e, postId) => {
@@ -290,16 +265,15 @@ const Grupos = () => {
     const entrarAGrupo = (grupo) => setGrupoActivoId(grupo._id);
     const salirDeGrupo = () => setGrupoActivoId(null);
     const toggleLike = (postId) => setLikes(prev => ({ ...prev, [postId]: !prev[postId] }));
-    const toggleGuardar = (postId) => setGuardados(prev => ({ ...prev, [postId]: !prev[postId] }));
+    const toggleComentarios = (postId) => setComentariosAbiertos(prev => ({ ...prev, [postId]: !prev[postId] }));
 
-    // --- RENDER MURO ---
+    // --- RENDER MURO DEL GRUPO ---
     if (grupoActivoId && grupoData) {
         const esCreadorGrupo = grupoData.creadorEmail === userEmail;
         return (
             <div className="fb-layout">
                 <div className="fb-header-container">
-                    {/* SECCIÓN PORTADA */}
-                    <div className="fb-cover-photo" style={{ backgroundImage: `url(${grupoData.portada || grupoData.imagen})` }}>
+                    <div className="fb-cover-photo" style={{ backgroundImage: `url(${grupoData.portada || "https://via.placeholder.com/800x300"})` }}>
                         <button className="fb-back-btn" onClick={salirDeGrupo}><FaArrowLeft /></button>
                         {esCreadorGrupo && (
                             <button className="fb-edit-cover" onClick={() => coverInputRef.current.click()}>
@@ -311,23 +285,18 @@ const Grupos = () => {
 
                     <div className="fb-profile-nav">
                         <div className="fb-avatar-section">
-                            {/* SECCIÓN PERFIL (CÍRCULO) */}
-                            <div className="fb-avatar-wrapper" style={{ width: '168px', height: '168px', borderRadius: '50%', border: '4px solid white', overflow: 'hidden', backgroundColor: '#fff', position: 'relative' }}>
-                                <img src={grupoData.imagen || "https://via.placeholder.com/150"} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <div className="fb-avatar-wrapper">
+                                <img src={grupoData.imagen || "https://via.placeholder.com/150"} alt="avatar" />
                                 {esCreadorGrupo && (
-                                    <button className="fb-edit-avatar-btn" onClick={() => fileInputRef.current.click()} style={{ position:'absolute', bottom:'10px', right:'10px', background:'#f0f2f5', border:'none', borderRadius:'50%', padding:'8px', cursor:'pointer' }}>
+                                    <button className="fb-edit-avatar-btn" onClick={() => fileInputRef.current.click()}>
                                         <FaCamera size={18} />
                                     </button>
                                 )}
                                 <input type="file" ref={fileInputRef} style={{display:'none'}} accept="image/*" onChange={(e)=>handleImagePreview(e, 'perfil')} />
                             </div>
                             <div className="fb-name-stats">
-                                <h1 style={{color: '#000', margin: '0'}}>{grupoData.nombre}</h1>
-                                <p style={{color: '#65676b', margin: '5px 0'}}><FaGlobeAmericas /> Grupo Público · <b>{grupoData.miembrosArray?.length || 1} miembros</b></p>
-                            </div>
-                            <div className="fb-header-btns">
-                                <button className="btn-fb-blue"><FaPlus /> Invitar</button>
-                                <button className="btn-fb-gray"><FaUserFriends /> Miembro</button>
+                                <h1>{grupoData.nombre}</h1>
+                                <p><FaGlobeAmericas /> Grupo Público · <b>{grupoData.miembrosArray?.length || 1} miembros</b></p>
                             </div>
                         </div>
                     </div>
@@ -335,13 +304,13 @@ const Grupos = () => {
 
                 <div className="fb-body-grid single-column">
                     <main className="fb-feed-center">
+                        {/* ÁREA DE PUBLICAR */}
                         <div className="fb-card-white publish-area">
                             <div className="publish-input-row">
-                                <div className="avatar-circle-wrapper">
-                                    {avatar ? <img src={avatar} className="mini-avatar-fb" alt="yo" /> : <FaUserCircle size={40} color="#ccc" className="mini-avatar-fb" />}
-                                </div>
-                                <input style={{color: '#000'}} placeholder={`¿Qué compartes hoy, ${userName}?`} value={nuevoPost} onChange={(e) => setNuevoPost(e.target.value)} />
+                                {avatar ? <img src={avatar} className="mini-avatar-fb" alt="yo" /> : <FaUserCircle size={40} color="#ccc" />}
+                                <input placeholder={`¿Qué compartes hoy, ${userName}?`} value={nuevoPost} onChange={(e) => setNuevoPost(e.target.value)} />
                             </div>
+                            {fotoPost && <div className="preview-foto-post"><img src={fotoPost} alt="preview" /><button onClick={()=>setFotoPost(null)}>X</button></div>}
                             <div className="publish-footer-fb">
                                 <button onClick={() => postFotoRef.current.click()}><FaRegImage color="#45bd62" /> Foto/video</button>
                                 <button onClick={handlePublicar} disabled={loading} className="btn-send-fb">{loading ? "..." : "Publicar"}</button>
@@ -349,62 +318,70 @@ const Grupos = () => {
                             </div>
                         </div>
 
+                        {/* LISTA DE POSTS */}
                         {grupoData.posts?.map(post => {
                             const esMiPost = post.autorEmail === userEmail;
+                            const esAdmin = userRole === 'admin' || esCreadorGrupo;
                             const estaAbierto = comentariosAbiertos[post._id];
-                            const editandoEstePost = postEditandoId === post._id;
 
                             return (
                                 <div key={post._id} className="fb-card-white post-container">
                                     <div className="post-top-header">
-                                        <div className="mini-avatar-fb avatar-circle-wrapper">
-                                            {esMiPost ? (avatar ? <img src={avatar} alt="yo" className="round-img" /> : <FaUserCircle size={40} color="#ccc" />) : (post.autorFoto ? <img src={post.autorFoto} alt="autor" className="round-img" /> : <FaUserCircle size={40} color="#ccc" />)}
+                                        <div className="mini-avatar-fb">
+                                            <img src={post.autorFoto || "https://via.placeholder.com/40"} alt="autor" />
                                         </div>
                                         <div className="post-user-meta">
-                                            <span className="author-fb" style={{color: '#000'}}>{post.autor || "Usuario"}</span>
-                                            <span className="time-fb" style={{color: '#65676b'}}>Ahora · <FaGlobeAmericas /></span>
+                                            <span className="author-fb">{post.autor}</span>
+                                            <span className="time-fb">Ahora · <FaGlobeAmericas /> {post.editado && " · Editado"}</span>
                                         </div>
                                         <div className="post-actions-right">
-                                            <button className="btn-fb-options" onClick={() => setMenuAbiertoId(menuAbiertoId === post._id ? null : post._id)}><FaEllipsisH /></button>
+                                            <button className="btn-fb-options" onClick={() => setMenuAbiertoId(menuAbiertoId === post._id ? null : post._id)}>
+                                                <FaEllipsisH />
+                                            </button>
                                             {menuAbiertoId === post._id && (
-                                                <div className="dropdown-fb-style" style={{ display: 'block', position: 'absolute', right: 0, zIndex: 10 }}>
+                                                <div className="dropdown-fb-style">
                                                     {esMiPost && (
                                                         <button onClick={() => { setPostEditandoId(post._id); setContenidoEditado(post.contenido); setMenuAbiertoId(null); }}>
-                                                            <FaEdit /> Editar Publicación
+                                                            <FaEdit /> Editar
                                                         </button>
                                                     )}
-                                                    {(esMiPost || esCreadorGrupo) && (
-                                                        <button style={{color:'red'}}><FaTrash /> Eliminar</button>
+                                                    {(esMiPost || esAdmin) && (
+                                                        <button className="delete-btn" onClick={() => handleEliminarPost(post._id)}>
+                                                            <FaTrash /> Eliminar
+                                                        </button>
                                                     )}
                                                 </div>
                                             )}
                                         </div>
                                     </div>
 
-                                    {editandoEstePost ? (
-                                        <div className="edit-post-container" style={{padding: '10px 15px'}}>
-                                            <textarea className="vibe-input-field" value={contenidoEditado} onChange={(e)=>setContenidoEditado(e.target.value)} style={{width:'100%', minHeight:'80px'}} />
-                                            <div style={{display:'flex', gap:'10px', marginTop:'10px'}}>
-                                                <button className="btn-send-fb" onClick={()=>handleEditarPost(post._id)}><FaSave /> Guardar</button>
-                                                <button className="btn-fb-gray" onClick={()=>setPostEditandoId(null)}>Cancelar</button>
+                                    {postEditandoId === post._id ? (
+                                        <div className="edit-post-box">
+                                            <textarea value={contenidoEditado} onChange={(e) => setContenidoEditado(e.target.value)} />
+                                            <div className="edit-btns">
+                                                <button className="btn-send-fb" onClick={() => handleEditarPost(post._id)}>Guardar</button>
+                                                <button onClick={() => setPostEditandoId(null)}>Cancelar</button>
                                             </div>
                                         </div>
                                     ) : (
-                                        <div className="post-body-text" style={{color: '#000', padding: '10px 15px'}}>{post.contenido}</div>
+                                        <div className="post-body-text">{post.contenido}</div>
                                     )}
 
-                                    {post.foto && <div className="post-image-main"><img src={post.foto} className="img-full-post" alt="post" /></div>}
+                                    {post.foto && <img src={post.foto} className="img-full-post" alt="post" />}
+
                                     <div className="post-action-buttons-fb">
-                                        <button onClick={() => toggleLike(post._id)} className={likes[post._id] ? "liked" : ""}><FaThumbsUp /> Me gusta</button>
-                                        <button onClick={() => toggleComentarios(post._id)}><FaComment /> Comentar</button>
-                                        <button><FaShare /> Compartir</button>
+                                         <button onClick={() => toggleLike(post._id)} className={likes[post._id] ? "active-like" : ""}>
+                                            <FaThumbsUp /> Me gusta
+                                         </button>
+                                         <button onClick={() => toggleComentarios(post._id)}><FaComment /> Comentar</button>
+                                         <button><FaShare /> Compartir</button>
                                     </div>
 
                                     {estaAbierto && (
                                         <div className="fb-comments-section">
-                                            {post.comentarios?.map((com, index) => (
-                                                <div key={index} className="comment-item">
-                                                    <img src={com.autorFoto || "https://via.placeholder.com/32"} alt="avatar" className="comment-mini-avatar" />
+                                            {post.comentarios?.map((com, idx) => (
+                                                <div key={idx} className="comment-item">
+                                                    <img src={com.autorFoto || "https://via.placeholder.com/32"} alt="v" className="comment-mini-avatar" />
                                                     <div className="comment-bubble">
                                                         <span className="comment-author-name">{com.autor}</span>
                                                         <span className="comment-text">{com.contenido}</span>
@@ -412,8 +389,12 @@ const Grupos = () => {
                                                 </div>
                                             ))}
                                             <form onSubmit={(e) => handleComentar(e, post._id)} className="comment-input-wrapper">
-                                                <input placeholder="Escribe un comentario..." className="comment-input-field" value={comentarioTexto[post._id] || ""} onChange={(e) => setComentarioTexto({...comentarioTexto, [post._id]: e.target.value})} />
-                                                <button type="submit" className="btn-send-comment-icon"><FaPaperPlane /></button>
+                                                <input 
+                                                    placeholder="Escribe un comentario..." 
+                                                    value={comentarioTexto[post._id] || ""} 
+                                                    onChange={(e) => setComentarioTexto({...comentarioTexto, [post._id]: e.target.value})} 
+                                                />
+                                                <button type="submit"><FaPaperPlane /></button>
                                             </form>
                                         </div>
                                     )}
@@ -432,7 +413,7 @@ const Grupos = () => {
             <div className="grupos-header-top">
                 <div className="header-left-side">
                     <button className="btn-back-main-page" onClick={() => window.history.back()}><FaArrowLeft /></button>
-                    <h2 style={{color: '#000'}}>Comunidades</h2>
+                    <h2>Comunidades</h2>
                 </div>
                 <button className="btn-crear-grupo" onClick={() => setIsModalOpen(true)}><FaPlus /> Crear Grupo</button>
             </div>
@@ -458,23 +439,22 @@ const Grupos = () => {
                         <div className="grupo-card-top-content" onClick={() => entrarAGrupo(grupo)}>
                             <img src={grupo.imagen || "https://via.placeholder.com/150"} className="grupo-img-mini-square" alt={grupo.nombre} />
                             <div className="grupo-textos-info">
-                                <h3 className="grupo-nombre-bold" style={{color: '#000'}}>{grupo.nombre}</h3>
-                                <p style={{color: '#65676b'}}>{grupo.miembrosArray?.length || 1} miembros</p>
+                                <h3 className="grupo-nombre-bold">{grupo.nombre}</h3>
+                                <p>{grupo.miembrosArray?.length || 1} miembros</p>
                             </div>
                         </div>
-                        <div className="grupo-card-actions-row">
-                            <button className="btn-ver-grupo-vibe-blue" onClick={() => entrarAGrupo(grupo)}>Ver</button>
-                        </div>
+                        <button className="btn-ver-grupo-vibe-blue" onClick={() => entrarAGrupo(grupo)}>Ver</button>
                     </div>
                 ))}
             </div>
 
+            {/* MODAL CREAR GRUPO */}
             {isModalOpen && (
                 <div className="modal-overlay">
                     <div className="vibe-modal-container">
                         <div className="vibe-modal-header">
                             <button className="vibe-close-circle" onClick={() => setIsModalOpen(false)}><FaTimes /></button>
-                            <h3 style={{color: '#000'}}>Nuevo Grupo</h3>
+                            <h3>Nuevo Grupo</h3>
                         </div>
                         <form onSubmit={handleCrearGrupo}>
                             <div className="vibe-modal-content-body">
@@ -485,13 +465,14 @@ const Grupos = () => {
                                 <input type="file" ref={fileInputRef} style={{display: 'none'}} accept="image/*" onChange={(e) => handleImagePreview(e, 'grupo')} />
                             </div>
                             <div className="vibe-modal-footer">
-                                <button type="submit" className="vibe-btn-primary-full">Crear Grupo</button>
+                                <button type="submit" disabled={loading} className="vibe-btn-primary-full">{loading ? "Creando..." : "Crear Grupo"}</button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
 
+            {/* MODAL CROPPER */}
             {imageToCrop && (
                 <div className="modal-overlay cropper-overlay">
                     <div className="vibe-modal-container cropper-modal">
