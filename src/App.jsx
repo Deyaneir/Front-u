@@ -25,6 +25,7 @@ import ActualizarInfo from "./Actualizacion/ActualizarInfo.jsx";
 import ChangePasswordForm from "./pages/Password/ActualizarPass.jsx";
 import Grupos from "./pages/Grupos/Grupos.jsx";
 import Gusuario from "./pages/gusuarios/Gusuarios.jsx";
+import Gautomatizacion from "./pages/Gautomatizacion/Gautomatizacion.jsx";
 
 // 🧭 Rutas protegidas
 import PublicRoute from "./routes/PublicRouter.jsx";
@@ -76,6 +77,7 @@ function App() {
           <Route path="actualizar-pass" element={<ChangePasswordForm />} />
           <Route path="grupos" element={<Grupos />} />
           <Route path="gusuarios" element={<Gusuario />} />
+          <Route path="gautomatizacion" element={<Gautomatizacion />} />
         </Route>
 
         {/* 📢 RUTAS ABIERTAS A TODO EL MUNDO */}
