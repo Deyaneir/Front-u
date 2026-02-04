@@ -42,9 +42,16 @@ export default function Gusuario() {
     const { user, type } = modal;
     if (!user) return;
 
+    // --- GUARDIA DE SEGURIDAD CRÍTICA ---
+    // Incluso si por un error de render apareces, esta función bloquea la petición
+    if (String(user._id) === String(currentUser?._id)) {
+      alert("Acción denegada: No puedes modificar tu propio perfil de administrador.");
+      setModal({ show: false, user: null, type: "" });
+      return;
+    }
+
     try {
       if (type === "ROL") {
-        // Alternamos el rol: si es administrador pasa a estudiante y viceversa
         const nuevoRol = user.rol === "administrador" ? "estudiante" : "administrador";
         
         const res = await fetch(`${API_URL}/${user._id}`, {
@@ -57,7 +64,6 @@ export default function Gusuario() {
         });
 
         if (res.ok) {
-          // Actualización optimista de la interfaz
           setUsuarios(prev => prev.map(u => u._id === user._id ? { ...u, rol: nuevoRol } : u));
         } else {
           alert("No se pudo actualizar el rol en el servidor");
@@ -79,23 +85,22 @@ export default function Gusuario() {
       console.error("Error en la petición:", err);
       alert("Error de conexión con el servidor");
     } finally {
-      // Cerramos el modal
       setModal({ show: false, user: null, type: "" });
     }
   };
 
-  // 🔹 Filtrado de búsqueda y exclusión del usuario logueado
+  // 🔹 FILTRADO INTELIGENTE: Búsqueda + Exclusión del usuario actual
   const usuariosFiltrados = usuarios.filter((u) => {
     const coincide = u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || 
                     u.correoInstitucional?.toLowerCase().includes(busqueda.toLowerCase());
     
-    // 🔹 Excluir solo al usuario logueado
-    const noSoyYo = u._id !== currentUser?._id;
+    // EXCLUSIÓN: Comparamos IDs como String para evitar errores de referencia
+    const noSoyYo = String(u._id) !== String(currentUser?._id);
 
     return coincide && noSoyYo;
   });
 
-  if (loading) return <div className="gestion-usuarios-seccion"><h3>Cargando sistema...</h3></div>;
+  if (loading) return <div className="gestion-usuarios-seccion"><h3>Cargando sistema de gestión...</h3></div>;
 
   return (
     <div className="gestion-usuarios-seccion">
@@ -126,7 +131,9 @@ export default function Gusuario() {
           <tbody>
             {usuariosFiltrados.length === 0 ? (
               <tr>
-                <td colSpan="4" style={{ textAlign: "center", padding: "40px" }}>No hay registros disponibles</td>
+                <td colSpan="4" style={{ textAlign: "center", padding: "40px" }}>
+                  {busqueda ? "No se encontraron coincidencias" : "No hay otros usuarios para gestionar"}
+                </td>
               </tr>
             ) : (
               usuariosFiltrados.map((usuario) => (
@@ -159,7 +166,7 @@ export default function Gusuario() {
         </table>
       </div>
 
-      {/* --- MODAL BLANCO DESLIZABLE --- */}
+      {/* --- MODAL DE CONFIRMACIÓN --- */}
       {modal.show && (
         <div className="modal-overlay">
           <div className="modal-card">
@@ -173,7 +180,7 @@ export default function Gusuario() {
             </p>
             
             <div className="modal-buttons">
-              <button className="btn-modal-cancel" onClick={() => setModal({ show: false })}>
+              <button className="btn-modal-cancel" onClick={() => setModal({ show: false, user: null, type: "" })}>
                 Cancelar
               </button>
               <button 
