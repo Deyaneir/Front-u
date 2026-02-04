@@ -25,16 +25,20 @@ const Grupos = () => {
     const userEmail = localStorage.getItem("correo");
 
     // --- ESTADOS DE NAVEGACIÓN Y POSTS ---
-    const [grupoActivo, setGrupoActivo] = useState(() => {
-        const persistido = localStorage.getItem("ultimoGrupoVisitado");
-        return persistido ? JSON.parse(persistido) : null;
+    // Corregido: Persistimos solo el ID para asegurar datos frescos
+    const [grupoActivoId, setGrupoActivoId] = useState(() => {
+        return localStorage.getItem("ultimoGrupoVisitadoId") || null;
     });
+
+    // Fuente de verdad única: Buscamos el grupo real dentro del array actualizado
+    const grupoData = grupos.find(g => g._id === grupoActivoId);
+
     const [nuevoPost, setNuevoPost] = useState("");
     const [fotoPost, setFotoPost] = useState(null);
     const [likes, setLikes] = useState({});
     const [guardados, setGuardados] = useState({});
 
-    // --- ESTADOS DE COMENTARIOS (AUMENTADOS) ---
+    // --- ESTADOS DE COMENTARIOS ---
     const [comentarioTexto, setComentarioTexto] = useState({});
     const [comentariosAbiertos, setComentariosAbiertos] = useState({});
 
@@ -91,12 +95,12 @@ const Grupos = () => {
 
     // --- 3. PERSISTENCIA ---
     useEffect(() => {
-        if (grupoActivo) {
-            localStorage.setItem("ultimoGrupoVisitado", JSON.stringify(grupoActivo));
+        if (grupoActivoId) {
+            localStorage.setItem("ultimoGrupoVisitadoId", grupoActivoId);
         } else {
-            localStorage.removeItem("ultimoGrupoVisitado");
+            localStorage.removeItem("ultimoGrupoVisitadoId");
         }
-    }, [grupoActivo]);
+    }, [grupoActivoId]);
 
     // --- 4. LÓGICA DE RECORTE ---
     const onCropComplete = useCallback((_ , pixels) => {
@@ -142,7 +146,7 @@ const Grupos = () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ correo: userEmail })
             });
-            if (res.ok) { cargarGrupos(); setGrupoActivo(null); }
+            if (res.ok) { cargarGrupos(); setGrupoActivoId(null); }
         } catch (error) { console.error(error); }
     };
 
@@ -150,7 +154,7 @@ const Grupos = () => {
         if (!window.confirm("¿Eliminar este grupo definitivamente?")) return;
         try {
             const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-            if (res.ok) { cargarGrupos(); setGrupoActivo(null); }
+            if (res.ok) { cargarGrupos(); setGrupoActivoId(null); }
         } catch (error) { console.error(error); }
     };
 
@@ -176,13 +180,13 @@ const Grupos = () => {
         finally { setLoading(false); }
     };
 
-    // --- 6. PUBLICACIONES Y COMENTARIOS (AUMENTADO) ---
+    // --- 6. PUBLICACIONES Y COMENTARIOS (SINCRONIZADOS) ---
     const handlePublicar = async (e) => {
         e.preventDefault();
         if (!nuevoPost.trim() && !fotoPost) return;
         setLoading(true);
         try {
-            const res = await fetch(`${API_URL}/${grupoActivo._id}/post`, {
+            const res = await fetch(`${API_URL}/${grupoActivoId}/post`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ 
@@ -194,7 +198,14 @@ const Grupos = () => {
                 })
             });
             const postGuardado = await res.json();
-            setGrupos(prev => prev.map(g => g._id === grupoActivo._id ? { ...g, posts: [postGuardado, ...g.posts] } : g));
+            
+            // Actualización inmediata del estado global
+            setGrupos(prev => prev.map(g => 
+                g._id === grupoActivoId 
+                ? { ...g, posts: [postGuardado, ...(g.posts || [])] } 
+                : g
+            ));
+            
             setNuevoPost(""); 
             setFotoPost(null);
         } catch (error) { console.error(error); }
@@ -207,7 +218,7 @@ const Grupos = () => {
         if (!texto?.trim()) return;
 
         try {
-            const res = await fetch(`${API_URL}/${grupoActivo._id}/post/${postId}/comentar`, {
+            const res = await fetch(`${API_URL}/${grupoActivoId}/post/${postId}/comentar`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -221,7 +232,7 @@ const Grupos = () => {
             if (res.ok) {
                 const nuevoComentario = await res.json();
                 setGrupos(prev => prev.map(g => {
-                    if (g._id === grupoActivo._id) {
+                    if (g._id === grupoActivoId) {
                         return {
                             ...g,
                             posts: g.posts.map(p => 
@@ -249,14 +260,13 @@ const Grupos = () => {
         reader.readAsDataURL(file);
     };
 
-    const entrarAGrupo = (grupo) => setGrupoActivo(grupo);
-    const salirDeGrupo = () => setGrupoActivo(null);
+    const entrarAGrupo = (grupo) => setGrupoActivoId(grupo._id);
+    const salirDeGrupo = () => setGrupoActivoId(null);
     const toggleLike = (postId) => setLikes(prev => ({ ...prev, [postId]: !prev[postId] }));
     const toggleGuardar = (postId) => setGuardados(prev => ({ ...prev, [postId]: !prev[postId] }));
 
-    // --- RENDER MURO (GRUPO ACTIVO) ---
-    if (grupoActivo) {
-        const grupoData = grupos.find(g => g._id === grupoActivo._id) || grupoActivo;
+    // --- RENDER MURO (SI HAY GRUPO ACTIVO Y DATOS CARGADOS) ---
+    if (grupoActivoId && grupoData) {
         return (
             <div className="fb-layout">
                 <div className="fb-header-container">
@@ -300,7 +310,7 @@ const Grupos = () => {
 
                             <div className="publish-footer-fb">
                                 <button onClick={() => postFotoRef.current.click()}><FaRegImage color="#45bd62" /> Foto/video</button>
-                                <button onClick={handlePublicar} disabled={loading} className="btn-send-fb">Publicar</button>
+                                <button onClick={handlePublicar} disabled={loading} className="btn-send-fb">{loading ? "..." : "Publicar"}</button>
                                 <input type="file" ref={postFotoRef} style={{display: 'none'}} accept="image/*" onChange={(e) => handleImagePreview(e, 'post')} />
                             </div>
                         </div>
@@ -331,15 +341,12 @@ const Grupos = () => {
                                         <button onClick={() => toggleLike(post._id)} className={likes[post._id] ? "liked" : ""} style={{color: '#65676b'}}>
                                             <FaThumbsUp /> Me gusta
                                         </button>
-                                        
                                         <button onClick={() => toggleComentarios(post._id)} style={{color: '#65676b'}}>
                                             <FaComment /> Comentar
                                         </button>
-                                        
                                         <button style={{color: '#65676b'}}><FaShare /> Compartir</button>
                                     </div>
 
-                                    {/* SECCIÓN DE COMENTARIOS CON DESPLIEGUE Y BOTÓN DE ENVIAR A LA DERECHA */}
                                     {estaAbierto && (
                                         <div className="fb-comments-section">
                                             {post.comentarios?.map((com, index) => (
