@@ -42,9 +42,16 @@ export default function Gusuario() {
     const { user, type } = modal;
     if (!user) return;
 
+    // --- GUARDIA DE SEGURIDAD ADICIONAL ---
+    // Evita que aunque el usuario sea visible por error, no se pueda procesar la petición
+    if (String(user._id) === String(currentUser?._id)) {
+      alert("Operación no permitida: No puedes modificar tu propio rango o eliminarte a ti mismo.");
+      setModal({ show: false, user: null, type: "" });
+      return;
+    }
+
     try {
       if (type === "ROL") {
-        // Alternamos el rol: si es administrador pasa a estudiante y viceversa
         const nuevoRol = user.rol === "administrador" ? "estudiante" : "administrador";
         
         const res = await fetch(`${API_URL}/${user._id}`, {
@@ -57,7 +64,6 @@ export default function Gusuario() {
         });
 
         if (res.ok) {
-          // Actualización optimista de la interfaz
           setUsuarios(prev => prev.map(u => u._id === user._id ? { ...u, rol: nuevoRol } : u));
         } else {
           alert("No se pudo actualizar el rol en el servidor");
@@ -79,18 +85,18 @@ export default function Gusuario() {
       console.error("Error en la petición:", err);
       alert("Error de conexión con el servidor");
     } finally {
-      // Cerramos el modal
       setModal({ show: false, user: null, type: "" });
     }
   };
 
-  // 🔹 Filtrado de búsqueda y exclusión del usuario logueado
+  // 🔹 Filtrado de búsqueda y EXCLUSIÓN TOTAL del usuario logueado
   const usuariosFiltrados = usuarios.filter((u) => {
     const coincide = u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || 
-                    u.correoInstitucional?.toLowerCase().includes(busqueda.toLowerCase());
+                     u.correoInstitucional?.toLowerCase().includes(busqueda.toLowerCase());
     
-    // 🔹 Excluir solo al usuario logueado
-    const noSoyYo = u._id !== currentUser?._id;
+    // Convertimos ambos a String para asegurar que la comparación sea exacta
+    // Esto evita problemas si uno es un ID de Mongo y el otro un String de JS
+    const noSoyYo = String(u._id) !== String(currentUser?._id);
 
     return coincide && noSoyYo;
   });
@@ -126,7 +132,7 @@ export default function Gusuario() {
           <tbody>
             {usuariosFiltrados.length === 0 ? (
               <tr>
-                <td colSpan="4" style={{ textAlign: "center", padding: "40px" }}>No hay registros disponibles</td>
+                <td colSpan="4" style={{ textAlign: "center", padding: "40px" }}>No hay otros registros disponibles</td>
               </tr>
             ) : (
               usuariosFiltrados.map((usuario) => (
@@ -159,7 +165,7 @@ export default function Gusuario() {
         </table>
       </div>
 
-      {/* --- MODAL BLANCO DESLIZABLE --- */}
+      {/* --- MODAL DE CONFIRMACIÓN --- */}
       {modal.show && (
         <div className="modal-overlay">
           <div className="modal-card">
@@ -173,7 +179,7 @@ export default function Gusuario() {
             </p>
             
             <div className="modal-buttons">
-              <button className="btn-modal-cancel" onClick={() => setModal({ show: false })}>
+              <button className="btn-modal-cancel" onClick={() => setModal({ show: false, user: null, type: "" })}>
                 Cancelar
               </button>
               <button 
