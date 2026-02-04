@@ -11,7 +11,7 @@ export default function Gusuario() {
   
   const [modal, setModal] = useState({ show: false, user: null, type: "" });
 
-  // Obtenemos los datos del usuario logueado desde el store
+  // Datos del usuario logueado (Damaris Lopez)
   const currentUser = storeAuth((state) => state.user);
   const token = storeAuth.getState().token;
 
@@ -41,9 +41,9 @@ export default function Gusuario() {
     const { user, type } = modal;
     if (!user) return;
 
-    // Bloqueo de seguridad por ID y por Correo
-    if (String(user._id) === String(currentUser?._id) || user.correoInstitucional === currentUser?.correoInstitucional) {
-      alert("No puedes realizar acciones sobre tu propia cuenta.");
+    // Bloqueo de seguridad en la función (Doble capa)
+    if (String(user._id) === String(currentUser?._id)) {
+      alert("No puedes realizar acciones administrativas sobre tu propia cuenta.");
       setModal({ show: false, user: null, type: "" });
       return;
     }
@@ -80,17 +80,10 @@ export default function Gusuario() {
     }
   };
 
-  // 🔹 FILTRO BLINDADO
+  // 🔹 FILTRO: Ahora solo filtra por búsqueda, NO te excluye de la lista
   const usuariosFiltrados = usuarios.filter((u) => {
-    const coincideBusqueda = u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || 
-                             u.correoInstitucional?.toLowerCase().includes(busqueda.toLowerCase());
-    
-    // EXCLUSIÓN POR CORREO (Más fiable que el ID si hay dudas con el store)
-    // Comprobamos que el correo de la lista sea diferente al tuyo logueado
-    const noSoyYo = u.correoInstitucional !== currentUser?.correoInstitucional && 
-                     String(u._id) !== String(currentUser?._id);
-
-    return coincideBusqueda && noSoyYo;
+    return u.nombre?.toLowerCase().includes(busqueda.toLowerCase()) || 
+           u.correoInstitucional?.toLowerCase().includes(busqueda.toLowerCase());
   });
 
   if (loading) return <div className="gestion-usuarios-seccion"><h3>Cargando...</h3></div>;
@@ -127,31 +120,43 @@ export default function Gusuario() {
                 <td colSpan="4" style={{ textAlign: "center", padding: "40px" }}>No hay registros</td>
               </tr>
             ) : (
-              usuariosFiltrados.map((usuario) => (
-                <tr key={usuario._id}>
-                  <td className="font-bold">{usuario.nombre}</td>
-                  <td>{usuario.correoInstitucional}</td>
-                  <td>
-                    <span className={`gestion-badge ${usuario.rol === 'administrador' ? 'admin' : 'usuario'}`}>
-                      {usuario.rol}
-                    </span>
-                  </td>
-                  <td className="actions-cell">
-                    <button 
-                      className={usuario.rol === "administrador" ? "btn-downgrade" : "btn-promote"} 
-                      onClick={() => setModal({ show: true, user: usuario, type: "ROL" })}
-                    >
-                      {usuario.rol === "administrador" ? "⬇️ Quitar Admin" : "⬆️ Hacer Admin"}
-                    </button>
-                    <button 
-                      className="btn-delete" 
-                      onClick={() => setModal({ show: true, user: usuario, type: "DELETE" })}
-                    >
-                      🗑️ Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))
+              usuariosFiltrados.map((usuario) => {
+                // Comprobamos si el usuario de esta fila eres TÚ
+                const esMiCuenta = String(usuario._id) === String(currentUser?._id);
+
+                return (
+                  <tr key={usuario._id} className={esMiCuenta ? "fila-propia" : ""}>
+                    <td className="font-bold">{usuario.nombre} {esMiCuenta && "(Tú)"}</td>
+                    <td>{usuario.correoInstitucional}</td>
+                    <td>
+                      <span className={`gestion-badge ${usuario.rol === 'administrador' ? 'admin' : 'usuario'}`}>
+                        {usuario.rol}
+                      </span>
+                    </td>
+                    <td className="actions-cell">
+                      {/* Botón de ROL deshabilitado si es tu cuenta */}
+                      <button 
+                        className={usuario.rol === "administrador" ? "btn-downgrade" : "btn-promote"} 
+                        onClick={() => setModal({ show: true, user: usuario, type: "ROL" })}
+                        disabled={esMiCuenta}
+                        title={esMiCuenta ? "No puedes cambiar tu propio rol" : ""}
+                      >
+                        {usuario.rol === "administrador" ? "⬇️ Quitar Admin" : "⬆️ Hacer Admin"}
+                      </button>
+
+                      {/* Botón de ELIMINAR deshabilitado si es tu cuenta */}
+                      <button 
+                        className="btn-delete" 
+                        onClick={() => setModal({ show: true, user: usuario, type: "DELETE" })}
+                        disabled={esMiCuenta}
+                        title={esMiCuenta ? "No puedes eliminar tu propia cuenta" : ""}
+                      >
+                        🗑️ Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })
             )}
           </tbody>
         </table>
@@ -163,7 +168,7 @@ export default function Gusuario() {
             <h3 className="modal-title">Confirmar Acción</h3>
             <p className="modal-text">¿Deseas modificar a <strong>{modal.user?.nombre}</strong>?</p>
             <div className="modal-buttons">
-              <button className="btn-modal-cancel" onClick={() => setModal({ show: false })}>Cancelar</button>
+              <button className="btn-modal-cancel" onClick={() => setModal({ show: false, user: null, type: "" })}>Cancelar</button>
               <button className="btn-modal-confirm-rol" onClick={confirmarAccion}>Confirmar</button>
             </div>
           </div>
